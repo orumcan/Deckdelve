@@ -1,0 +1,124 @@
+buildscript {
+  repositories {
+    gradlePluginPortal()
+  }
+  dependencies {
+    classpath 'io.github.fourlastor:construo:2.2.2'
+  }
+}
+
+plugins {
+  id 'application'
+}
+apply plugin: 'io.github.fourlastor.construo'
+
+import io.github.fourlastor.construo.Target
+
+sourceSets.main.resources.srcDirs += [rootProject.file('assets').path]
+application.mainClass = 'io.github.orumcan.deckdelve.lwjgl3.Lwjgl3Launcher'
+application.applicationName = appName
+
+dependencies {
+  implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+  implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+  implementation project(':core')
+
+  // Pins LWJGL to at least $lwjgl3Version to avoid warnings on Java 25 and up.
+  constraints {
+    implementation "org.lwjgl:lwjgl:$lwjgl3Version"
+    implementation "org.lwjgl:lwjgl-glfw:$lwjgl3Version"
+    implementation "org.lwjgl:lwjgl-jemalloc:$lwjgl3Version"
+    implementation "org.lwjgl:lwjgl-openal:$lwjgl3Version"
+    implementation "org.lwjgl:lwjgl-opengl:$lwjgl3Version"
+    implementation "org.lwjgl:lwjgl-stb:$lwjgl3Version"
+  }
+}
+
+def os = System.properties['os.name'].toLowerCase(Locale.ROOT)
+
+run {
+  workingDir = rootProject.file('assets').path
+  // LWJGL3 needs these on JDK 24 and up.
+  jvmArgs += '--enable-native-access=ALL-UNNAMED'
+  jvmArgs += '--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED'
+  // GLFW has to run on the main thread on macOS.
+  if (os.contains('mac')) jvmArgs += '-XstartOnFirstThread'
+}
+
+// Keeps StartupHelper from restarting the JVM under Gradle, so debugging works on Linux with NVIDIA drivers.
+tasks.withType(JavaExec).configureEach {
+  environment('__GL_THREADED_OPTIMIZATIONS', 0)
+}
+
+// A single runnable JAR with every dependency inside.
+jar {
+  archiveFileName.set("${appName}-${projectVersion}.jar")
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+  dependsOn configurations.runtimeClasspath
+  from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+  exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+  dependencies {
+    exclude('META-INF/INDEX.LIST', 'META-INF/maven/**')
+  }
+  manifest {
+    attributes 'Main-Class': application.mainClass,
+      'Enable-Native-Access': 'ALL-UNNAMED',
+      'Multi-Release': 'true',
+      'Add-Exports': 'java.base/jdk.internal.misc'
+  }
+  doLast {
+    file(archiveFile).setExecutable(true, false)
+  }
+}
+
+// The distribution ships only the runnable JAR, not the libraries already inside it.
+distributions {
+  main {
+    contents {
+      into('libs') {
+        project.configurations.runtimeClasspath.files.findAll { file ->
+          file.getName() != project.tasks.jar.outputs.files.singleFile.name
+        }.each { file ->
+          exclude file.name
+        }
+      }
+    }
+  }
+}
+startScripts.dependsOn(':lwjgl3:jar')
+startScripts.classpath = project.tasks.jar.outputs.files
+
+// Native executables with a bundled JDK: lwjgl3:packageLinuxX64, packageMacM1, packageMacX64 and packageWinX64.
+// Output goes to lwjgl3/build/dist/. Construo can't notarize macOS builds.
+construo {
+  name.set(appName)
+  humanName.set(appName)
+  jlink {
+    guessModulesFromJar.set(false)
+    modules.addAll('java.base', 'java.management', 'java.desktop', 'jdk.unsupported')
+  }
+
+  targets.configure {
+    register('linuxX64', Target.Linux) {
+      architecture.set(Target.Architecture.X86_64)
+      jdkUrl.set('https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.10%2B7/OpenJDK21U-jdk_x64_linux_hotspot_21.0.10_7.tar.gz')
+    }
+    register('macM1', Target.MacOs) {
+      architecture.set(Target.Architecture.AARCH64)
+      jdkUrl.set('https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.10%2B7/OpenJDK21U-jdk_aarch64_mac_hotspot_21.0.10_7.tar.gz')
+      identifier.set('io.github.orumcan.deckdelve')
+      macIcon.set(project.file('icons/logo.icns'))
+    }
+    register('macX64', Target.MacOs) {
+      architecture.set(Target.Architecture.X86_64)
+      jdkUrl.set('https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.10%2B7/OpenJDK21U-jdk_x64_mac_hotspot_21.0.10_7.tar.gz')
+      identifier.set('io.github.orumcan.deckdelve')
+      macIcon.set(project.file('icons/logo.icns'))
+    }
+    register('winX64', Target.Windows) {
+      architecture.set(Target.Architecture.X86_64)
+      jdkUrl.set('https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.10%2B7/OpenJDK21U-jdk_x64_windows_hotspot_21.0.10_7.zip')
+      icon.set(project.file('icons/logo.png'))
+    }
+  }
+}

@@ -1,0 +1,49 @@
+import org.teavm.gradle.api.OptimizationLevel
+
+plugins {
+  id 'java'
+  id 'com.github.xpenatan.gdx-teavm' version "$gdxTeaVMVersion"
+}
+
+dependencies {
+  implementation "com.github.xpenatan.gdx-teavm:backend-web:$gdxTeaVMVersion"
+  implementation project(':core')
+}
+
+// Development: gdx_teavm_web_js_run serves an unobfuscated build that rebuilds and reloads on changes.
+// Release: gdx_teavm_web_{js,wasm}_release_build writes to build/dist/{js,wasm}/release/webapp,
+// and the matching _run tasks serve that build locally.
+gdxTeaVM {
+  assets.from(rootProject.files('assets'))
+
+  webDefaults {
+    mainClass.set('io.github.orumcan.deckdelve.teavm.TeaVMLauncher')
+    htmlTitle.set(appName)
+  }
+
+  js {
+    devServer {
+      enabled.set(true)
+      autoBuild.set(true)
+      autoReload.set(true)
+      optimization.set(OptimizationLevel.NONE)
+    }
+  }
+
+  js('release') {
+    obfuscated.set(true)
+    serverPort.set(8180)
+    optimization.set(OptimizationLevel.BALANCED)
+  }
+
+  wasm('release') {
+    obfuscated.set(true)
+    serverPort.set(8181)
+    optimization.set(OptimizationLevel.BALANCED)
+  }
+}
+
+tasks.register('run') {
+  dependsOn 'gdx_teavm_web_wasm_release_run'
+}
+build.dependsOn 'gdx_teavm_web_wasm_release_build'

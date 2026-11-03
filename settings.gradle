@@ -1,0 +1,8 @@
+plugins {
+  // Lets Gradle download a matching JDK when one isn't installed.
+  id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+rootProject.name = 'deckdelve'
+
+include 'core', 'lwjgl3', 'android', 'teavm'

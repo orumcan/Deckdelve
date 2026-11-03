@@ -1,0 +1,46 @@
+buildscript {
+  repositories {
+    google()
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:8.9.3'
+  }
+}
+
+plugins {
+  id 'com.diffplug.spotless' version '8.10.4' apply false
+}
+
+subprojects {
+  version = projectVersion
+  ext.appName = 'Deckdelve'
+
+  repositories {
+    mavenCentral()
+  }
+
+  apply plugin: 'com.diffplug.spotless'
+  spotless {
+    java {
+      target 'src/**/*.java'
+      // Third-party file (Apache-2.0), kept exactly as published.
+      targetExclude '**/StartupHelper.java'
+      palantirJavaFormat()
+    }
+  }
+}
+
+configure(subprojects - project(':android')) {
+  apply plugin: 'java-library'
+
+  java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+  }
+
+  tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+    options.encoding = 'UTF-8'
+  }
+}
