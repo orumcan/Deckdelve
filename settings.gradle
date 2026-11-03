@@ -5,4 +5,4 @@ plugins {
 
 rootProject.name = 'deckdelve'
 
-include 'core', 'lwjgl3', 'android', 'teavm'
+include 'logic', 'console', 'core', 'lwjgl3', 'android', 'teavm'

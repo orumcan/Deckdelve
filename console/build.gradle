@@ -1,0 +1,14 @@
+plugins {
+  id 'application'
+}
+
+description = 'A text version of Deckdelve for playtesting the rules engine.'
+application.mainClass = 'io.github.orumcan.deckdelve.console.ConsoleGame'
+
+dependencies {
+  implementation project(':logic')
+}
+
+run {
+  standardInput = System.in
+}

@@ -19,6 +19,7 @@ You need JDK 21. The Gradle wrapper fetches everything else. Android builds also
 | Run on desktop | `./gradlew lwjgl3:run` |
 | Run in the browser | `./gradlew teavm:run`, then open the printed link |
 | Build an Android APK | `./gradlew android:assembleDebug` |
+| Play the text version, for testing the rules | `./gradlew -q --console=plain console:run` |
 | Build, test and check formatting | `./gradlew build` |
 | Format the code | `./gradlew spotlessApply` |
 

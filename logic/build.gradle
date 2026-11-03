@@ -1,0 +1,2 @@
+// Plain Java with no libGDX dependency, so the rules can't depend on the engine and stay fully unit-testable.
+description = 'The Scoundrel rules engine.'
