@@ -27,4 +27,4 @@ You need JDK 21. The Gradle wrapper fetches everything else. Android builds also
 
 Deckdelve is free software, released under the [GNU General Public License v3.0 or later](LICENSE).
 
-Scoundrel was designed by Zach Gage and Kurt Bieg. Deckdelve isn't affiliated with or endorsed by them.
+Scoundrel was designed by Zach Gage and Kurt Bieg. Deckdelve isn't affiliated with or endorsed by them. The font and libraries Deckdelve uses are credited in [CREDITS.md](CREDITS.md).

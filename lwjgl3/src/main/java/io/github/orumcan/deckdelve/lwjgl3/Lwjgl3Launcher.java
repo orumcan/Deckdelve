@@ -1,5 +1,6 @@
 package io.github.orumcan.deckdelve.lwjgl3;
 
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import io.github.orumcan.deckdelve.DeckdelveGame;
@@ -16,8 +17,12 @@ public class Lwjgl3Launcher {
         configuration.setTitle("Deckdelve");
         configuration.useVsync(true);
         // Vsync doesn't always work on Linux, so the frame rate is also capped at the monitor's refresh rate.
-        configuration.setForegroundFPS(Lwjgl3ApplicationConfiguration.getDisplayMode().refreshRate + 1);
-        configuration.setWindowedMode(640, 480);
+        Graphics.DisplayMode display = Lwjgl3ApplicationConfiguration.getDisplayMode();
+        configuration.setForegroundFPS(display.refreshRate + 1);
+        // The table is a portrait layout, so the window opens portrait-shaped at most of the screen's height.
+        int height = Math.round(display.height * 0.85f);
+        configuration.setWindowedMode(height * 9 / 16, height);
+        configuration.setWindowSizeLimits(360, 640, -1, -1);
         configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
         return configuration;
     }

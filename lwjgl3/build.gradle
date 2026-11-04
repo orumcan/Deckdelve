@@ -21,6 +21,7 @@ application.applicationName = appName
 dependencies {
   implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+  implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
   implementation project(':core')
 
   // Pins LWJGL to at least $lwjgl3Version to avoid warnings on Java 25 and up.
