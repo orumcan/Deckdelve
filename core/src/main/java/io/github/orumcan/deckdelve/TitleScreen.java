@@ -3,15 +3,13 @@ package io.github.orumcan.deckdelve;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import io.github.orumcan.deckdelve.logic.Card;
 import io.github.orumcan.deckdelve.logic.Suit;
 
 final class TitleScreen extends StageScreen {
-    private static final String RULES_URL = "http://www.stfj.net/art/2011/Scoundrel.pdf";
     private static final float FAN_WIDTH = CardActor.WIDTH * 2.6f;
 
     private final DeckdelveGame game;
@@ -27,17 +25,17 @@ final class TitleScreen extends StageScreen {
         root.add(new Label(ui.text("title.name"), ui.styles.title)).padTop(48).row();
         root.add(new Label(ui.text("title.author"), ui.styles.muted)).row();
         root.add(new Label(ui.text("title.credit"), ui.styles.small)).padTop(28).row();
-        Label rules = new Label(ui.text("title.rules"), ui.styles.link);
-        rules.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                Gdx.net.openURI(RULES_URL);
-            }
-        });
-        root.add(rules).padTop(12).row();
-        root.add(button(ui.text("title.play"), ui.styles.primary, game::startRun))
+        root.add(button(ui.text("title.play"), ui.styles.primary, this::play))
                 .size(360, 100)
-                .padTop(96);
+                .padTop(72)
+                .row();
+        Table more = new Table();
+        more.defaults().size(240, 84).space(24);
+        more.add(button(ui.text("title.rules"), ui.styles.secondary, game::showRules));
+        more.add(button(ui.text("title.tutorial"), ui.styles.secondary, game::startTutorial));
+        root.add(more).padTop(24).row();
+        root.add(button(ui.text("title.credits"), ui.styles.quiet, game::showCredits))
+                .padTop(28);
     }
 
     /** A weapon, a potion and a monster, fanned out like a hand. */
@@ -56,10 +54,44 @@ final class TitleScreen extends StageScreen {
         return fan;
     }
 
+    private void play() {
+        if (game.tutorialOffered()) {
+            game.startRun();
+        } else {
+            offerTutorial();
+        }
+    }
+
+    /** Asked once, the first time someone plays. */
+    private void offerTutorial() {
+        Table panel = panel();
+        panel.add(heading(ui.text("offer.title"))).growX().row();
+        Label body = new Label(ui.text("offer.body"), ui.styles.body);
+        body.setWrap(true);
+        body.setAlignment(Align.center);
+        panel.add(body).growX().padTop(12).row();
+        panel.add(button(ui.text("offer.tutorial"), ui.styles.primary, game::startTutorial))
+                .growX()
+                .height(92)
+                .padTop(32)
+                .row();
+        panel.add(button(ui.text("offer.skip"), ui.styles.secondary, game::skipTutorial))
+                .growX()
+                .height(84)
+                .padTop(16);
+        open(panel, this::offerTutorial, true, keycode -> {
+            if (isBack(keycode)) {
+                close();
+                return true;
+            }
+            return false;
+        });
+    }
+
     @Override
     boolean onKey(int keycode) {
         if (keycode == Input.Keys.ENTER || keycode == Input.Keys.SPACE) {
-            game.startRun();
+            play();
             return true;
         }
         if (keycode == Input.Keys.BACK) {

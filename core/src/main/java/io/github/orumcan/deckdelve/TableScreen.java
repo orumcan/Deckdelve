@@ -3,13 +3,11 @@ package io.github.orumcan.deckdelve;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import io.github.orumcan.deckdelve.logic.Action;
 import io.github.orumcan.deckdelve.logic.Card;
@@ -22,36 +20,40 @@ import io.github.orumcan.deckdelve.logic.Transition;
 import io.github.orumcan.deckdelve.logic.Weapon;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.IntPredicate;
 
 final class TableScreen extends StageScreen {
     private static final float PAD = 28;
     private static final float PILE_WIDTH = 112;
-    private static final float PANEL_WIDTH = 600;
 
     private final DeckdelveGame game;
+    /** Null in a normal run. */
+    private final Tutorial tutorial;
+
     private GameState state;
     private String status;
-    private Table modal;
-    private IntPredicate modalKeys;
-    /** Opens the current dialog again after a rebuild, so resizing the window doesn't close it. */
-    private Runnable dialog;
+    private Optional<Tutorial.Tip> tip;
 
     TableScreen(DeckdelveGame game, Ui ui, GameState state) {
+        this(game, ui, state, null);
+    }
+
+    TableScreen(DeckdelveGame game, Ui ui, GameState state, Tutorial tutorial) {
         super(ui);
         this.game = game;
+        this.tutorial = tutorial;
         this.state = state;
-        status = ui.text("status.start");
+        // In the tutorial, the opening tip already says what the status line would.
+        status = tutorial == null ? ui.text("status.start") : "";
+        tip = tutorial == null ? Optional.empty() : tutorial.start(state);
     }
 
     @Override
     void build(Table root) {
-        modal = null;
-        modalKeys = null;
         Table column = new Table();
         column.pad(PAD);
         column.defaults().growX();
         column.add(topBar()).row();
+        tip.ifPresent(shown -> column.add(tipBanner(shown)).padTop(24).row());
         column.add().expandY().row();
         column.add(piles()).row();
         column.add().expandY().row();
@@ -65,9 +67,18 @@ final class TableScreen extends StageScreen {
         root.add(column).width(Ui.WIDTH).growY();
         if (state.isOver()) {
             showEnd();
-        } else if (dialog != null) {
-            dialog.run();
         }
+    }
+
+    private Table tipBanner(Tutorial.Tip shown) {
+        Table banner = new Table();
+        banner.setBackground(ui.styles.tip);
+        banner.pad(18, 24, 20, 24);
+        banner.add(new Label(ui.text("tutorial.tip"), ui.styles.accent)).left().row();
+        Label text = new Label(ui.text(shown.key), ui.styles.body);
+        text.setWrap(true);
+        banner.add(text).growX().padTop(6);
+        return banner;
     }
 
     private Table topBar() {
@@ -160,7 +171,7 @@ final class TableScreen extends StageScreen {
 
     private void pick(int slot) {
         Optional<Card> card = state.room().card(slot);
-        if (modal != null || state.isOver() || card.isEmpty()) {
+        if (dialogOpen() || state.isOver() || card.isEmpty()) {
             return;
         }
         switch (card.get().type()) {
@@ -171,18 +182,16 @@ final class TableScreen extends StageScreen {
     }
 
     private void apply(Action action) {
-        dialog = null;
+        close();
         Transition transition = Rules.apply(state, action);
         state = transition.state();
         status = StatusText.of(transition.events(), ui);
+        tip = tutorial == null ? Optional.empty() : tutorial.next(state, transition.events());
         rebuild();
     }
 
     @Override
     boolean onKey(int keycode) {
-        if (modalKeys != null) {
-            return modalKeys.test(keycode);
-        }
         int slot = slotFor(keycode);
         if (slot >= 0) {
             pick(slot);
@@ -209,13 +218,8 @@ final class TableScreen extends StageScreen {
         return -1;
     }
 
-    private static boolean isBack(int keycode) {
-        return keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACK;
-    }
-
     /** Asks every time, even without a weapon, so a stray tap on a monster never costs health. */
     private void showFight(int slot, Card monster) {
-        dialog = () -> showFight(slot, monster);
         boolean canUseWeapon = Rules.canUseWeapon(state, monster);
         Runnable withWeapon = () -> apply(Action.Fight.withWeapon(slot));
         Runnable barehanded = () -> apply(Action.Fight.barehanded(slot));
@@ -234,7 +238,7 @@ final class TableScreen extends StageScreen {
                 .padTop(16)
                 .row();
         panel.add(button(ui.text("fight.cancel"), ui.styles.quiet, this::close)).padTop(16);
-        open(panel, true, keycode -> {
+        open(panel, () -> showFight(slot, monster), true, keycode -> {
             if (keycode == Input.Keys.W && canUseWeapon) {
                 withWeapon.run();
             } else if (keycode == Input.Keys.B) {
@@ -270,16 +274,21 @@ final class TableScreen extends StageScreen {
     }
 
     private void showPause() {
-        dialog = this::showPause;
         Table panel = panel();
-        panel.add(wrapped(ui.text("pause.title"))).growX().row();
+        panel.add(heading(ui.text("pause.title"))).growX().row();
         panel.add(button(ui.text("pause.resume"), ui.styles.primary, this::close))
                 .growX()
                 .height(92)
                 .padTop(36)
                 .row();
+        panel.add(button(ui.text("pause.rules"), ui.styles.secondary, this::showRules))
+                .growX()
+                .height(84)
+                .padTop(16)
+                .row();
         // A fresh dungeon in one tap, so a bad opening never means a trip through the title screen.
-        panel.add(button(ui.text("pause.newRun"), ui.styles.secondary, game::startRun))
+        String newRun = tutorial == null ? "pause.newRun" : "pause.realRun";
+        panel.add(button(ui.text(newRun), ui.styles.secondary, game::startRun))
                 .growX()
                 .height(84)
                 .padTop(16)
@@ -288,7 +297,7 @@ final class TableScreen extends StageScreen {
                 .growX()
                 .height(84)
                 .padTop(16);
-        open(panel, true, keycode -> {
+        open(panel, this::showPause, true, keycode -> {
             if (isBack(keycode)) {
                 close();
                 return true;
@@ -297,16 +306,33 @@ final class TableScreen extends StageScreen {
         });
     }
 
+    /** The rules over the table, so a run can be checked against them without leaving it. */
+    private void showRules() {
+        close();
+        ScrollPane scroll = Pages.scroller(ui, HowToPlay.content(ui, null));
+        Table page = Pages.frame(ui, ui.text("rules.title"), scroll, this::close);
+        page.setBackground(ui.styles.panel);
+        openPage(page, this::showRules, keycode -> {
+            if (isBack(keycode)) {
+                close();
+                return true;
+            }
+            return Pages.scrollByKey(scroll, keycode);
+        });
+        stage.setScrollFocus(scroll);
+    }
+
     private void showEnd() {
         Table panel = panel();
-        panel.add(wrapped(ui.text(state.status() == Status.WON ? "end.won" : "end.lost")))
+        panel.add(heading(ui.text(state.status() == Status.WON ? "end.won" : "end.lost")))
                 .growX()
                 .row();
         panel.add(new Label(ui.text("end.score"), ui.styles.muted)).padTop(20).row();
         panel.add(new Label(Integer.toString(Scoring.score(state)), ui.styles.title))
                 .row();
         panel.add(new Label(ui.text("end.seed", state.seed()), ui.styles.small)).row();
-        panel.add(button(ui.text("end.again"), ui.styles.primary, game::startRun))
+        String again = tutorial == null ? "end.again" : "end.realRun";
+        panel.add(button(ui.text(again), ui.styles.primary, game::startRun))
                 .growX()
                 .height(92)
                 .padTop(36)
@@ -315,7 +341,7 @@ final class TableScreen extends StageScreen {
                 .growX()
                 .height(84)
                 .padTop(16);
-        open(panel, false, keycode -> {
+        open(panel, null, false, keycode -> {
             if (keycode == Input.Keys.ENTER || keycode == Input.Keys.SPACE) {
                 game.startRun();
             } else if (isBack(keycode)) {
@@ -325,48 +351,5 @@ final class TableScreen extends StageScreen {
             }
             return true;
         });
-    }
-
-    private Label wrapped(String text) {
-        Label label = new Label(text, ui.styles.heading);
-        label.setWrap(true);
-        label.setAlignment(Align.center);
-        return label;
-    }
-
-    private Table panel() {
-        Table panel = new Table();
-        panel.setBackground(ui.styles.panel);
-        panel.setTouchable(Touchable.enabled);
-        panel.pad(36);
-        return panel;
-    }
-
-    private void open(Table panel, boolean closeOnOutsideClick, IntPredicate keys) {
-        Table overlay = new Table();
-        overlay.setFillParent(true);
-        overlay.setBackground(ui.styles.dim);
-        overlay.setTouchable(Touchable.enabled);
-        overlay.add(panel).width(PANEL_WIDTH);
-        if (closeOnOutsideClick) {
-            overlay.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    if (event.getTarget() == overlay) {
-                        close();
-                    }
-                }
-            });
-        }
-        stage.addActor(overlay);
-        modal = overlay;
-        modalKeys = keys;
-    }
-
-    private void close() {
-        dialog = null;
-        modal.remove();
-        modal = null;
-        modalKeys = null;
     }
 }

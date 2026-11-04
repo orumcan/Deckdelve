@@ -3,6 +3,7 @@ package io.github.orumcan.deckdelve;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane.ScrollPaneStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -10,26 +11,30 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 final class Styles {
     final LabelStyle title;
     final LabelStyle heading;
+    final LabelStyle section;
     final LabelStyle body;
     final LabelStyle muted;
     final LabelStyle small;
-    final LabelStyle link;
+    final LabelStyle accent;
     final LabelStyle ink;
     final LabelStyle inkSmall;
     final TextButtonStyle primary;
     final TextButtonStyle secondary;
     final TextButtonStyle quiet;
+    final ScrollPaneStyle scroll;
     final Drawable dim;
     final Drawable panel;
+    final Drawable tip;
     final Drawable vignette;
 
     Styles(Fonts fonts, Art art) {
         title = new LabelStyle(fonts.title, Palette.TEXT);
         heading = new LabelStyle(fonts.heading, Palette.TEXT);
+        section = new LabelStyle(fonts.button, Palette.GOLD);
         body = new LabelStyle(fonts.body, Palette.TEXT);
         muted = new LabelStyle(fonts.body, Palette.MUTED);
         small = new LabelStyle(fonts.small, Palette.MUTED);
-        link = new LabelStyle(fonts.small, Palette.GOLD);
+        accent = new LabelStyle(fonts.small, Palette.GOLD);
         ink = new LabelStyle(fonts.button, Palette.INK);
         inkSmall = new LabelStyle(fonts.small, Palette.INK);
 
@@ -40,8 +45,14 @@ final class Styles {
         quiet.fontColor = Palette.MUTED;
         quiet.overFontColor = Palette.TEXT;
 
+        scroll = new ScrollPaneStyle();
+        TextureRegionDrawable knob = new TextureRegionDrawable(art.pixel);
+        scroll.vScrollKnob = knob.tint(new Color(1, 1, 1, 0.25f));
+        scroll.vScrollKnob.setMinWidth(6);
+
         dim = new TextureRegionDrawable(art.pixel).tint(new Color(0, 0, 0, 0.6f));
         panel = Surfaces.floating(art, Palette.PANEL, Palette.PANEL_BORDER);
+        tip = Surfaces.floating(art, Palette.PANEL, Palette.GOLD_LIP);
         vignette = new TextureRegionDrawable(art.vignette).tint(new Color(0, 0, 0, 0.5f));
     }
 
