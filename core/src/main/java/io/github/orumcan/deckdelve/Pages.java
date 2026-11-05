@@ -32,7 +32,7 @@ final class Pages {
     }
 
     static ScrollPane scroller(Ui ui, Table content) {
-        content.pad(8, PAD, PAD * 2, PAD);
+        content.top().pad(8, PAD, PAD * 2, PAD);
         ScrollPane scroll = new ScrollPane(content, ui.styles.scroll);
         scroll.setScrollingDisabled(true, false);
         scroll.setFadeScrollBars(false);
@@ -62,8 +62,8 @@ final class Pages {
                 .row();
     }
 
-    static void paragraph(Table page, Ui ui, String key) {
-        Label label = new Label(ui.text(key), ui.styles.body);
+    static void paragraph(Table page, Ui ui, String key, Object... args) {
+        Label label = new Label(ui.text(key, args), ui.styles.body);
         label.setWrap(true);
         page.add(label).width(TEXT_WIDTH).padTop(12).row();
     }

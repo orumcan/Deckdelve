@@ -24,6 +24,7 @@ final class Fonts implements Disposable {
     BitmapFont small;
     BitmapFont index;
     BitmapFont face;
+    BitmapFont name;
 
     private final FreeTypeFontGenerator regular =
             new FreeTypeFontGenerator(Gdx.files.internal("fonts/Rubik-Regular.ttf"));
@@ -55,6 +56,7 @@ final class Fonts implements Disposable {
         button = font(bold, 34, FreeTypeFontGenerator.DEFAULT_CHARS, 0);
         body = font(regular, 30, FreeTypeFontGenerator.DEFAULT_CHARS, 0);
         small = font(regular, 24, FreeTypeFontGenerator.DEFAULT_CHARS, 0);
+        name = font(bold, 15, FreeTypeFontGenerator.DEFAULT_CHARS, 0);
         return true;
     }
 
@@ -77,7 +79,7 @@ final class Fonts implements Disposable {
     }
 
     private void disposeFonts() {
-        for (BitmapFont font : new BitmapFont[] {title, heading, button, body, small, index, face}) {
+        for (BitmapFont font : new BitmapFont[] {title, heading, button, body, small, index, face, name}) {
             if (font != null) {
                 font.dispose();
             }

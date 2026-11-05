@@ -32,10 +32,11 @@ final class TitleScreen extends StageScreen {
         Table more = new Table();
         more.defaults().size(240, 84).space(24);
         more.add(button(ui.text("title.rules"), ui.styles.secondary, game::showRules));
-        more.add(button(ui.text("title.tutorial"), ui.styles.secondary, game::startTutorial));
-        root.add(more).padTop(24).row();
-        root.add(button(ui.text("title.credits"), ui.styles.quiet, game::showCredits))
-                .padTop(28);
+        more.add(button(ui.text("title.tutorial"), ui.styles.secondary, game::startTutorial))
+                .row();
+        more.add(button(ui.text("title.settings"), ui.styles.secondary, game::showSettings));
+        more.add(button(ui.text("title.credits"), ui.styles.secondary, game::showCredits));
+        root.add(more).padTop(24);
     }
 
     /** A weapon, a potion and a monster, fanned out like a hand. */

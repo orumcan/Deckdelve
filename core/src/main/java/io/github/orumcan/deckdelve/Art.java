@@ -24,7 +24,8 @@ final class Art implements Disposable {
     private final Array<Texture> textures = new Array<>();
 
     Art() {
-        rounded = new NinePatch(texture(Raster.roundedSquare(64, 0, 24, 0)), 24, 24, 24, 24);
+        // The shape stops a texel short of the edges, so its straight sides are smoothed too, even on a tilted card.
+        rounded = new NinePatch(texture(Raster.roundedSquare(64, 1, 24, 0)), 25, 25, 25, 25);
         rounded.scale(PATCH_SCALE, PATCH_SCALE);
         Texture soft = texture(Raster.roundedSquare(96, 16, 24, 16));
         shadow = new NinePatch(soft, 40, 40, 40, 40);

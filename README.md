@@ -10,6 +10,8 @@ Deckdelve is a free, open-source and fully offline version of Scoundrel. The cla
 
 Platforms: Windows, macOS and Linux, Android and the web.
 
+Themes are data: a folder of names, colors and icons, with no code. [THEMES.md](THEMES.md) shows how to make one.
+
 ## Building
 
 You need JDK 21. The Gradle wrapper fetches everything else. Android builds also need the Android SDK, found through `ANDROID_HOME` or `sdk.dir` in `local.properties`.
@@ -27,4 +29,4 @@ You need JDK 21. The Gradle wrapper fetches everything else. Android builds also
 
 Deckdelve is free software, released under the [GNU General Public License v3.0 or later](LICENSE).
 
-Scoundrel was designed by Zach Gage and Kurt Bieg. Deckdelve isn't affiliated with or endorsed by them. The font and libraries Deckdelve uses are credited in [CREDITS.md](CREDITS.md).
+Scoundrel was designed by Zach Gage and Kurt Bieg. Deckdelve isn't affiliated with or endorsed by them. The font, icons and libraries Deckdelve uses are credited in [CREDITS.md](CREDITS.md).

@@ -16,8 +16,8 @@ public class DeckdelveGame extends Game {
 
     @Override
     public void create() {
-        ui = new Ui();
         profile = new Profile();
+        ui = new Ui(profile.theme());
         ui.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.input.setCatchKey(Input.Keys.BACK, true);
         setScreen(new TitleScreen(this, ui));
@@ -34,6 +34,15 @@ public class DeckdelveGame extends Game {
 
     void showCredits() {
         later(() -> setScreen(new PageScreen(this, ui, "credits.title", () -> Credits.content(ui))));
+    }
+
+    void showSettings() {
+        later(() -> setScreen(new PageScreen(this, ui, "settings.title", () -> Settings.content(ui, this::useTheme))));
+    }
+
+    void useTheme(String id) {
+        ui.useTheme(id);
+        profile.theme(id);
     }
 
     void startRun() {

@@ -19,6 +19,9 @@ final class CardActor extends Actor {
     private final CardPainter painter;
     private final Card card;
     private final Side side;
+    /** Null to follow the player's theme. */
+    private Theme theme;
+
     private ClickListener clicks;
 
     private CardActor(CardPainter painter, Card card, Side side, float width) {
@@ -30,6 +33,13 @@ final class CardActor extends Actor {
 
     static CardActor face(CardPainter painter, Card card) {
         return new CardActor(painter, card, Side.FACE, WIDTH);
+    }
+
+    /** A card drawn in a given theme, whatever the player has picked, for previews. */
+    static CardActor face(CardPainter painter, Card card, Theme theme) {
+        CardActor actor = face(painter, card);
+        actor.theme = theme;
+        return actor;
     }
 
     static CardActor back(CardPainter painter, float width) {
@@ -57,7 +67,11 @@ final class CardActor extends Actor {
         switch (side) {
             case FACE -> {
                 float lift = clicks != null && clicks.isOver() ? 8 : 0;
-                painter.face(batch, card, getX(), getY() + lift, getWidth(), alpha);
+                if (theme == null) {
+                    painter.face(batch, card, getX(), getY() + lift, getWidth(), alpha);
+                } else {
+                    painter.face(batch, card, getX(), getY() + lift, getWidth(), alpha, theme);
+                }
             }
             case BACK -> painter.back(batch, getX(), getY(), getWidth(), alpha);
             case SLOT -> painter.slot(batch, getX(), getY(), getWidth(), alpha);

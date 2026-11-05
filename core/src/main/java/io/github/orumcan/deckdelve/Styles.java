@@ -20,7 +20,9 @@ final class Styles {
     final LabelStyle inkSmall;
     final TextButtonStyle primary;
     final TextButtonStyle secondary;
-    final TextButtonStyle quiet;
+    /** A tile among several, such as a theme in Settings: the chosen one sits pressed in, in gold. */
+    final TextButtonStyle choice;
+
     final ScrollPaneStyle scroll;
     final Drawable dim;
     final Drawable panel;
@@ -40,10 +42,11 @@ final class Styles {
 
         primary = button(fonts.button, art, Palette.GOLD, Palette.GOLD_LIP, Palette.INK);
         secondary = button(fonts.button, art, Palette.BUTTON, Palette.BUTTON_LIP, Palette.TEXT);
-        quiet = new TextButtonStyle();
-        quiet.font = fonts.body;
-        quiet.fontColor = Palette.MUTED;
-        quiet.overFontColor = Palette.TEXT;
+        choice = button(fonts.button, art, Palette.BUTTON, Palette.BUTTON_LIP, Palette.TEXT);
+        choice.checked = Surfaces.raised(art, Palette.GOLD, Palette.GOLD_LIP, true);
+        choice.checkedDown = choice.checked;
+        choice.checkedOffsetY = -Surfaces.PRESS;
+        choice.checkedFontColor = Palette.INK;
 
         scroll = new ScrollPaneStyle();
         TextureRegionDrawable knob = new TextureRegionDrawable(art.pixel);

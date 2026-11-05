@@ -20,6 +20,16 @@ final class Credits {
         Pages.section(page, ui, "credits.font.title");
         Pages.paragraph(page, ui, "credits.font.body");
 
+        Pages.section(page, ui, "credits.themes.title");
+        for (String id : ui.themes.ids()) {
+            ThemeData theme = ui.themes.data(id);
+            if (theme != null) {
+                for (Localized line : theme.credits()) {
+                    Pages.paragraph(page, ui, "credits.theme", theme.name().in(ui.language()), line.in(ui.language()));
+                }
+            }
+        }
+
         Pages.section(page, ui, "credits.software.title");
         Pages.paragraph(page, ui, "credits.software.body");
         // FreeType's license asks binary releases to show this line in their documentation.

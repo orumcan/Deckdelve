@@ -237,7 +237,10 @@ final class TableScreen extends StageScreen {
                 .growX()
                 .padTop(16)
                 .row();
-        panel.add(button(ui.text("fight.cancel"), ui.styles.quiet, this::close)).padTop(16);
+        panel.add(button(ui.text("fight.cancel"), ui.styles.secondary, this::close))
+                .growX()
+                .height(84)
+                .padTop(16);
         open(panel, () -> showFight(slot, monster), true, keycode -> {
             if (keycode == Input.Keys.W && canUseWeapon) {
                 withWeapon.run();

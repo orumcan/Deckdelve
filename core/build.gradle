@@ -3,3 +3,8 @@ dependencies {
   api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
   api project(':logic')
 }
+
+tasks.named('test') {
+  // ThemeDataTest reads the theme folders, so editing a theme reruns it.
+  inputs.dir(rootProject.file('assets/themes'))
+}
