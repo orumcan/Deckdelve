@@ -9,17 +9,23 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Align;
+import io.github.orumcan.deckdelve.logic.Achievement;
 import io.github.orumcan.deckdelve.logic.Action;
 import io.github.orumcan.deckdelve.logic.Card;
+import io.github.orumcan.deckdelve.logic.Event;
 import io.github.orumcan.deckdelve.logic.GameState;
+import io.github.orumcan.deckdelve.logic.Modifier;
+import io.github.orumcan.deckdelve.logic.Progress;
 import io.github.orumcan.deckdelve.logic.Room;
 import io.github.orumcan.deckdelve.logic.Rules;
 import io.github.orumcan.deckdelve.logic.Scoring;
 import io.github.orumcan.deckdelve.logic.Status;
 import io.github.orumcan.deckdelve.logic.Transition;
 import io.github.orumcan.deckdelve.logic.Weapon;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 final class TableScreen extends StageScreen {
     private static final float PAD = 28;
@@ -32,6 +38,13 @@ final class TableScreen extends StageScreen {
     private GameState state;
     private String status;
     private Optional<Tutorial.Tip> tip;
+    private Progress progress = Progress.start();
+    /** The achievements this run unlocked for the first time, listed when it ends. */
+    private final List<Achievement> unlocked = new ArrayList<>();
+    /** The ones the last action unlocked, shown in the banner until the next. */
+    private List<Achievement> fresh = List.of();
+    /** Whether a card has been resolved, which makes the run count even if it's left early. */
+    private boolean started;
 
     TableScreen(DeckdelveGame game, Ui ui, GameState state) {
         this(game, ui, state, null);
@@ -43,7 +56,9 @@ final class TableScreen extends StageScreen {
         this.tutorial = tutorial;
         this.state = state;
         // In the tutorial, the opening tip already says what the status line would.
-        status = tutorial == null ? ui.text("status.start") : "";
+        status = tutorial != null
+                ? ""
+                : ui.text(state.rules().has(Modifier.FULL_CLEAR) ? "status.startFullClear" : "status.start");
         tip = tutorial == null ? Optional.empty() : tutorial.start(state);
     }
 
@@ -53,7 +68,21 @@ final class TableScreen extends StageScreen {
         column.pad(PAD);
         column.defaults().growX();
         column.add(topBar()).row();
+        Set<Modifier> modifiers = state.rules().modifiers();
+        if (!modifiers.isEmpty()) {
+            Label line = new Label(
+                    ui.text(
+                            "table.modifiers",
+                            ui.modifierNames(modifiers),
+                            ui.multiplier(Scoring.multiplier(modifiers))),
+                    ui.styles.small);
+            line.setAlignment(Align.center);
+            column.add(line).padTop(14).row();
+        }
         tip.ifPresent(shown -> column.add(tipBanner(shown)).padTop(24).row());
+        if (!fresh.isEmpty()) {
+            column.add(achievementBanner()).padTop(24).row();
+        }
         column.add().expandY().row();
         column.add(piles()).row();
         column.add().expandY().row();
@@ -81,9 +110,28 @@ final class TableScreen extends StageScreen {
         return banner;
     }
 
+    private Table achievementBanner() {
+        Table banner = new Table();
+        banner.setBackground(ui.styles.tip);
+        banner.pad(18, 24, 20, 24);
+        banner.defaults().left().growX();
+        banner.add(new Label(ui.text("achievement.unlocked"), ui.styles.accent)).row();
+        for (Achievement achievement : fresh) {
+            banner.add(new Label(ui.text(Ui.key("achievement", achievement)), ui.styles.strong))
+                    .padTop(8)
+                    .row();
+            Label body = new Label(ui.text(Ui.key("achievement", achievement) + ".body"), ui.styles.small);
+            body.setWrap(true);
+            banner.add(body).padTop(2).row();
+        }
+        return banner;
+    }
+
     private Table topBar() {
         Table bar = new Table();
-        bar.add(new HealthBar(ui, state.health())).growX().height(52);
+        bar.add(new HealthBar(ui, state.health(), Rules.maxHealth(state.rules())))
+                .growX()
+                .height(52);
         bar.add(button(ui.text("table.menu"), ui.styles.secondary, this::showPause))
                 .size(150, 64)
                 .padLeft(24);
@@ -126,7 +174,9 @@ final class TableScreen extends StageScreen {
             int index = slot;
             CardActor actor = state.room()
                     .card(slot)
-                    .map(card -> CardActor.face(ui.cards, card).onClick(() -> pick(index)))
+                    .map(card -> state.isFaceDown(index)
+                            ? CardActor.back(ui.cards, CardActor.WIDTH).onClick(() -> pick(index))
+                            : CardActor.face(ui.cards, card).onClick(() -> pick(index)))
                     .orElseGet(() -> CardActor.slot(ui.cards, CardActor.WIDTH));
             room.add(actor).size(CardActor.WIDTH, CardActor.HEIGHT);
         }
@@ -174,6 +224,11 @@ final class TableScreen extends StageScreen {
         if (dialogOpen() || state.isOver() || card.isEmpty()) {
             return;
         }
+        if (state.isFaceDown(slot)) {
+            status = ui.text("status.faceDown");
+            rebuild();
+            return;
+        }
         switch (card.get().type()) {
             case WEAPON -> apply(new Action.Equip(slot));
             case POTION -> apply(new Action.Drink(slot));
@@ -186,8 +241,56 @@ final class TableScreen extends StageScreen {
         Transition transition = Rules.apply(state, action);
         state = transition.state();
         status = StatusText.of(transition.events(), ui);
-        tip = tutorial == null ? Optional.empty() : tutorial.next(state, transition.events());
+        if (tutorial != null) {
+            tip = tutorial.next(state, transition.events());
+        } else {
+            track(action, transition);
+        }
         rebuild();
+    }
+
+    /** Keeps the achievements and stats of every run but the tutorial. */
+    private void track(Action action, Transition transition) {
+        started |= !(action instanceof Action.Avoid);
+        Progress next = progress.after(transition);
+        fresh = new ArrayList<>();
+        unlock(next.earnedSince(progress));
+        progress = next;
+        if (state.isOver()) {
+            Optional<Card> killer = state.status() == Status.LOST ? killer(transition.events()) : Optional.empty();
+            unlock(game.profile().record(state, killer));
+        }
+    }
+
+    /** Shows the achievements unlocked for the first time in the banner, and lists them at the end of the run. */
+    private void unlock(Iterable<Achievement> earned) {
+        for (Achievement achievement : earned) {
+            if (game.profile().unlock(achievement)) {
+                fresh.add(achievement);
+                unlocked.add(achievement);
+            }
+        }
+    }
+
+    /** The monster that dealt a death's last blow, if a monster did: Hunger can end a run too. */
+    private static Optional<Card> killer(List<Event> events) {
+        Optional<Card> killer = Optional.empty();
+        for (Event event : events) {
+            if (event instanceof Event.MonsterFought fought) {
+                killer = Optional.of(fought.monster());
+            } else if (event instanceof Event.HungerFelt) {
+                killer = Optional.empty();
+            }
+        }
+        return killer;
+    }
+
+    /** Leaves a run before its end, which counts it once a card has been resolved. */
+    private void leave(Runnable next) {
+        if (tutorial == null && started && !state.isOver()) {
+            game.profile().record(state, Optional.empty());
+        }
+        next.run();
     }
 
     @Override
@@ -261,7 +364,7 @@ final class TableScreen extends StageScreen {
             return ui.text("fight.noWeapon");
         }
         if (Rules.canUseWeapon(state, monster)) {
-            return ui.text("fight.damage", weapon.get().damageAgainst(monster));
+            return ui.text("fight.damage", Rules.weaponDamage(weapon.get(), monster, state.rules()));
         }
         return ui.text("fight.blocked", ui.cards.rank(weapon.get().lastSlain().orElseThrow()));
     }
@@ -291,12 +394,12 @@ final class TableScreen extends StageScreen {
                 .row();
         // A fresh dungeon in one tap, so a bad opening never means a trip through the title screen.
         String newRun = tutorial == null ? "pause.newRun" : "pause.realRun";
-        panel.add(button(ui.text(newRun), ui.styles.secondary, game::startRun))
+        panel.add(button(ui.text(newRun), ui.styles.secondary, () -> leave(game::startRun)))
                 .growX()
                 .height(84)
                 .padTop(16)
                 .row();
-        panel.add(button(ui.text("pause.quit"), ui.styles.secondary, game::showTitle))
+        panel.add(button(ui.text("pause.quit"), ui.styles.secondary, () -> leave(game::showTitle)))
                 .growX()
                 .height(84)
                 .padTop(16);
@@ -333,7 +436,31 @@ final class TableScreen extends StageScreen {
         panel.add(new Label(ui.text("end.score"), ui.styles.muted)).padTop(20).row();
         panel.add(new Label(Integer.toString(Scoring.score(state)), ui.styles.title))
                 .row();
-        panel.add(new Label(ui.text("end.seed", state.seed()), ui.styles.small)).row();
+        Set<Modifier> modifiers = state.rules().modifiers();
+        if (!modifiers.isEmpty()) {
+            if (state.status() == Status.WON) {
+                String multiplier = Ui.decimal(Scoring.multiplier(modifiers));
+                panel.add(new Label(ui.text("end.multiplied", Scoring.plainScore(state), multiplier), ui.styles.muted))
+                        .row();
+            }
+            Label names = new Label(ui.text("end.modifiers", ui.modifierNames(modifiers)), ui.styles.small);
+            names.setWrap(true);
+            names.setAlignment(Align.center);
+            panel.add(names).growX().padTop(8).row();
+        }
+        panel.add(new Label(ui.text("end.seed", state.seed()), ui.styles.small))
+                .padTop(8)
+                .row();
+        if (!unlocked.isEmpty()) {
+            panel.add(new Label(ui.text("end.achievements"), ui.styles.muted))
+                    .padTop(24)
+                    .row();
+            for (Achievement achievement : unlocked) {
+                panel.add(new Label(ui.text(Ui.key("achievement", achievement)), ui.styles.section))
+                        .padTop(6)
+                        .row();
+            }
+        }
         String again = tutorial == null ? "end.again" : "end.realRun";
         panel.add(button(ui.text(again), ui.styles.primary, game::startRun))
                 .growX()

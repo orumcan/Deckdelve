@@ -19,10 +19,10 @@ class StartTest {
         assertEquals(Deck.shuffled(seed).subList(4, 44), state.dungeon());
         assertEquals(
                 List.of(
-                        new Event.CardDealt(0, card("10♦")),
-                        new Event.CardDealt(1, card("10♣")),
-                        new Event.CardDealt(2, card("6♠")),
-                        new Event.CardDealt(3, card("5♥"))),
+                        new Event.CardDealt(0, card("10♦"), false),
+                        new Event.CardDealt(1, card("10♣"), false),
+                        new Event.CardDealt(2, card("6♠"), false),
+                        new Event.CardDealt(3, card("5♥"), false)),
                 start.events());
         assertEquals(seed, state.seed());
         assertEquals(20, state.health());

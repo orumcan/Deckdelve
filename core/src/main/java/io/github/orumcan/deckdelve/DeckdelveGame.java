@@ -37,7 +37,20 @@ public class DeckdelveGame extends Game {
     }
 
     void showSettings() {
-        later(() -> setScreen(new PageScreen(this, ui, "settings.title", () -> Settings.content(ui, this::useTheme))));
+        later(() -> setScreen(
+                new PageScreen(this, ui, "settings.title", () -> Settings.content(ui, this::useTheme, profile))));
+    }
+
+    void showAchievements() {
+        later(() -> setScreen(new PageScreen(this, ui, "achievements.title", () -> Achievements.content(ui, profile))));
+    }
+
+    void showStats() {
+        later(() -> setScreen(new PageScreen(this, ui, "stats.title", () -> Stats.content(ui, profile))));
+    }
+
+    Profile profile() {
+        return profile;
     }
 
     void useTheme(String id) {
@@ -46,7 +59,7 @@ public class DeckdelveGame extends Game {
     }
 
     void startRun() {
-        GameState run = Rules.start(Seed.of(MathUtils.random.nextLong()), RulesConfig.OFFICIAL)
+        GameState run = Rules.start(Seed.of(MathUtils.random.nextLong()), profile.rules())
                 .state();
         later(() -> setScreen(new TableScreen(this, ui, run)));
     }

@@ -29,9 +29,9 @@ class RoomRulesTest {
         assertEquals(
                 List.of(
                         new Event.MonsterFought(card("5♣"), false, 5),
-                        new Event.CardDealt(0, card("6♣")),
-                        new Event.CardDealt(1, card("7♣")),
-                        new Event.CardDealt(3, card("8♣"))),
+                        new Event.CardDealt(0, card("6♣"), false),
+                        new Event.CardDealt(1, card("7♣"), false),
+                        new Event.CardDealt(3, card("8♣"), false)),
                 third.events());
     }
 

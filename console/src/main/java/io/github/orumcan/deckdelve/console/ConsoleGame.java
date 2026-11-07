@@ -46,6 +46,10 @@ public final class ConsoleGame {
             System.out.print(Options.USAGE);
             return;
         }
+        if (options.botGames() > 0) {
+            BotRuns.run(options.botGames(), options.rules(), System.out);
+            return;
+        }
         Seed seed = options.seed().orElseGet(() -> Seed.of(new SecureRandom().nextLong()));
         PrintStream out = new PrintStream(new FileOutputStream(FileDescriptor.out), true, StandardCharsets.UTF_8);
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
@@ -72,13 +76,15 @@ public final class ConsoleGame {
 
     private void show(GameState state) {
         out.println();
-        out.println("Health " + state.health() + "/" + Rules.MAX_HEALTH
+        out.println("Health " + state.health() + "/" + Rules.maxHealth(state.rules())
                 + " · Weapon " + describe(state.weapon())
                 + " · Dungeon " + state.dungeon().size()
                 + " · Discard " + state.discard().size());
         StringBuilder room = new StringBuilder("Room");
         for (int slot = 0; slot < Room.SIZE; slot++) {
-            String card = state.room().card(slot).map(Card::toString).orElse("--");
+            String card = state.isFaceDown(slot)
+                    ? "??"
+                    : state.room().card(slot).map(Card::toString).orElse("--");
             room.append("  [").append(slot + 1).append("] ").append(card);
         }
         out.println(room);
@@ -112,6 +118,10 @@ public final class ConsoleGame {
             Optional<Card> card = state.room().card(slot);
             if (card.isEmpty()) {
                 out.println("Slot " + (slot + 1) + " is empty.");
+                continue;
+            }
+            if (state.isFaceDown(slot)) {
+                out.println("That card is face down until you resolve another card in this room.");
                 continue;
             }
             String how = command.substring(1);
@@ -159,7 +169,8 @@ public final class ConsoleGame {
     private static String fightChoice(GameState state, Card monster) {
         Weapon weapon = state.weapon().orElseThrow();
         String withWeapon = Rules.canUseWeapon(state, monster)
-                ? "W with the " + weapon.card() + " for " + weapon.damageAgainst(monster) + " damage"
+                ? "W with the " + weapon.card() + " for " + Rules.weaponDamage(weapon, monster, state.rules())
+                        + " damage"
                 : "the " + weapon.card() + " can't fight it after the "
                         + weapon.lastSlain().orElseThrow();
         return "Fight " + monster + ": " + withWeapon + ", B barehanded for " + monster.value() + " damage";
@@ -174,9 +185,15 @@ public final class ConsoleGame {
 
     private void report(List<Event> events) {
         boolean dealt = false;
+        boolean faceDown = false;
         for (Event event : events) {
-            if (event instanceof Event.CardDealt) {
+            if (event instanceof Event.CardDealt card) {
                 dealt = true;
+                faceDown |= card.faceDown();
+            } else if (event instanceof Event.CardRevealed revealed) {
+                out.println("The face-down card turns over: " + revealed.card() + ".");
+            } else if (event instanceof Event.WeaponBroke broke) {
+                out.println("The " + broke.weapon().card() + " breaks." + discarded(broke.weapon()));
             } else if (event instanceof Event.RoomAvoided avoided) {
                 out.println("You avoid the room. Its " + avoided.cards().size()
                         + " cards go to the bottom of the dungeon.");
@@ -194,6 +211,8 @@ public final class ConsoleGame {
                 out.println("You fight the " + fought.monster()
                         + (fought.usedWeapon() ? " with your weapon" : " barehanded") + " and take " + fought.damage()
                         + " damage.");
+            } else if (event instanceof Event.HungerFelt hunger) {
+                out.println("Hunger costs you " + hunger.damage() + " health.");
             } else if (event instanceof Event.GameOver over) {
                 out.println(
                         over.status() == Status.WON
@@ -202,7 +221,7 @@ public final class ConsoleGame {
             }
         }
         if (dealt) {
-            out.println("A new room is dealt.");
+            out.println(faceDown ? "A new room is dealt, one card face down." : "A new room is dealt.");
         }
     }
 

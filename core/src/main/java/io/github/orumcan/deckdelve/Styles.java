@@ -13,6 +13,7 @@ final class Styles {
     final LabelStyle heading;
     final LabelStyle section;
     final LabelStyle body;
+    final LabelStyle strong;
     final LabelStyle muted;
     final LabelStyle small;
     final LabelStyle accent;
@@ -34,6 +35,7 @@ final class Styles {
         heading = new LabelStyle(fonts.heading, Palette.TEXT);
         section = new LabelStyle(fonts.button, Palette.GOLD);
         body = new LabelStyle(fonts.body, Palette.TEXT);
+        strong = new LabelStyle(fonts.button, Palette.TEXT);
         muted = new LabelStyle(fonts.body, Palette.MUTED);
         small = new LabelStyle(fonts.small, Palette.MUTED);
         accent = new LabelStyle(fonts.small, Palette.GOLD);

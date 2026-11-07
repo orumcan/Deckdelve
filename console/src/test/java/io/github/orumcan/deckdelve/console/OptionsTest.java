@@ -4,11 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.github.orumcan.deckdelve.logic.Modifier;
 import io.github.orumcan.deckdelve.logic.RulesConfig;
 import io.github.orumcan.deckdelve.logic.RulesConfig.FinalRoom;
 import io.github.orumcan.deckdelve.logic.RulesConfig.WeaponRule;
 import io.github.orumcan.deckdelve.logic.Seed;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 class OptionsTest {
@@ -28,7 +30,16 @@ class OptionsTest {
 
         assertEquals(Optional.of(Seed.parse("7KQ2-M9XD")), options.seed());
         assertEquals(
-                new RulesConfig(WeaponRule.STRICTLY_LOWER, FinalRoom.LEAVE_LAST_CARD, true, true), options.rules());
+                new RulesConfig(WeaponRule.STRICTLY_LOWER, FinalRoom.LEAVE_LAST_CARD, true, true, Set.of()),
+                options.rules());
+    }
+
+    @Test
+    void readsTheModifiersAndTheBotGames() {
+        Options options = Options.parse(new String[] {"--fragile", "--fog", "--bot", "500"});
+
+        assertEquals(Set.of(Modifier.FRAGILE, Modifier.FOG), options.rules().modifiers());
+        assertEquals(500, options.botGames());
     }
 
     @Test
@@ -36,5 +47,6 @@ class OptionsTest {
         assertThrows(IllegalArgumentException.class, () -> Options.parse(new String[] {"--fast"}));
         assertThrows(IllegalArgumentException.class, () -> Options.parse(new String[] {"--seed"}));
         assertThrows(IllegalArgumentException.class, () -> Options.parse(new String[] {"--seed", "nope"}));
+        assertThrows(IllegalArgumentException.class, () -> Options.parse(new String[] {"--bot", "lots"}));
     }
 }

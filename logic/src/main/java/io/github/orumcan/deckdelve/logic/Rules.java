@@ -6,7 +6,12 @@ import java.util.List;
 import java.util.Optional;
 
 public final class Rules {
-    public static final int MAX_HEALTH = 20;
+    /** The kill that breaks a weapon under Brittle Blades. */
+    public static final int BRITTLE_KILLS = 4;
+
+    private static final int HEALTH = 20;
+    private static final int FRAGILE_HEALTH = 15;
+    private static final int HUNGER_COST = 1;
 
     private Rules() {}
 
@@ -32,6 +37,7 @@ public final class Rules {
             fight(state, draft, cardIn(state, fight.slot(), CardType.MONSTER), fight);
         }
         if (draft.status == Status.PLAYING) {
+            draft.revealFaceDown();
             advance(draft);
         }
         return draft.finish();
@@ -47,7 +53,7 @@ public final class Rules {
         }
         for (int slot = 0; slot < Room.SIZE; slot++) {
             Optional<Card> card = state.room().card(slot);
-            if (card.isEmpty()) {
+            if (card.isEmpty() || state.isFaceDown(slot)) {
                 continue;
             }
             switch (card.get().type()) {
@@ -66,6 +72,7 @@ public final class Rules {
 
     public static boolean canAvoid(GameState state) {
         return !state.isOver()
+                && !state.rules().has(Modifier.NO_RETREAT)
                 && !state.lastRoomAvoided()
                 && state.resolvedInRoom() == 0
                 && !state.dungeon().isEmpty();
@@ -77,7 +84,26 @@ public final class Rules {
                 .orElse(false);
     }
 
+    /** The health a run starts with, which is also the most it can heal to: 20, or 15 under Fragile. */
+    public static int maxHealth(RulesConfig rules) {
+        return rules.has(Modifier.FRAGILE) ? FRAGILE_HEALTH : HEALTH;
+    }
+
+    /** What a monster costs when fought with the weapon: whatever it has over the weapon, and at least 1 under Thorns. */
+    public static int weaponDamage(Weapon weapon, Card monster, RulesConfig rules) {
+        int damage = weapon.damageAgainst(monster);
+        return rules.has(Modifier.THORNS) ? Math.max(1, damage) : damage;
+    }
+
+    /** The most a potion heals: its value, or 1 less under Watered Down. */
+    public static int healing(Card potion, RulesConfig rules) {
+        return rules.has(Modifier.WATERED_DOWN) ? potion.value() - 1 : potion.value();
+    }
+
     private static void avoid(GameState state, Draft draft) {
+        if (state.rules().has(Modifier.NO_RETREAT)) {
+            throw new IllegalActionException("No Retreat is on, so Rooms can't be avoided.");
+        }
         if (state.lastRoomAvoided()) {
             throw new IllegalActionException("The previous Room was avoided, so this one has to be faced.");
         }
@@ -90,6 +116,7 @@ public final class Rules {
         List<Card> cards = state.room().cards();
         draft.dungeon.addAll(cards);
         Arrays.fill(draft.room, null);
+        draft.clearFaceDown();
         draft.lastRoomAvoided = true;
         draft.emit(new Event.RoomAvoided(cards));
     }
@@ -98,8 +125,7 @@ public final class Rules {
         draft.resolve(slot);
         Weapon replaced = draft.weapon;
         if (replaced != null) {
-            draft.discard.add(replaced.card());
-            draft.discard.addAll(replaced.slain());
+            draft.discard(replaced);
         }
         draft.weapon = Weapon.of(weapon);
         draft.emit(new Event.WeaponEquipped(weapon, Optional.ofNullable(replaced)));
@@ -112,7 +138,7 @@ public final class Rules {
             draft.emit(new Event.PotionWasted(potion));
             return;
         }
-        int healed = Math.min(potion.value(), MAX_HEALTH - draft.health);
+        int healed = Math.min(healing(potion, draft.rules), maxHealth(draft.rules) - draft.health);
         draft.health += healed;
         draft.potionUsed = true;
         draft.emit(new Event.PotionDrunk(potion, healed));
@@ -126,7 +152,7 @@ public final class Rules {
                 throw new IllegalActionException(weapon.card() + " last slew "
                         + weapon.lastSlain().orElseThrow() + ", so it can't fight " + monster + ".");
             }
-            damage = weapon.damageAgainst(monster);
+            damage = weaponDamage(weapon, monster, state.rules());
             draft.weapon = weapon.slay(monster);
         } else {
             damage = monster.value();
@@ -135,6 +161,13 @@ public final class Rules {
         draft.resolve(fight.slot());
         draft.health -= damage;
         draft.emit(new Event.MonsterFought(monster, fight.useWeapon(), damage));
+        if (fight.useWeapon()
+                && state.rules().has(Modifier.BRITTLE_BLADES)
+                && draft.weapon.slain().size() == BRITTLE_KILLS) {
+            draft.discard(draft.weapon);
+            draft.emit(new Event.WeaponBroke(draft.weapon));
+            draft.weapon = null;
+        }
         if (draft.health <= 0) {
             draft.status = Status.LOST;
         }
@@ -144,20 +177,36 @@ public final class Rules {
         int left = draft.roomCount();
         boolean dungeonEmpty = draft.dungeon.isEmpty();
         if (left == 0) {
-            // Either the Room was just avoided, or the last Room is finished.
+            // The Room was just avoided, cleared under Full Clear, or it was the last one.
             if (dungeonEmpty) {
                 draft.status = Status.WON;
             } else {
-                draft.dealRoom();
+                if (draft.resolvedInRoom > 0) {
+                    draft.lastRoomAvoided = false;
+                }
+                nextRoom(draft);
             }
-        } else if (left == 1 && draft.resolvedInRoom > 0) {
+        } else if (left == 1 && draft.resolvedInRoom > 0 && !draft.rules.has(Modifier.FULL_CLEAR)) {
             if (!dungeonEmpty) {
                 draft.lastRoomAvoided = false;
-                draft.dealRoom();
+                nextRoom(draft);
             } else if (draft.rules.finalRoom() == RulesConfig.FinalRoom.LEAVE_LAST_CARD) {
                 draft.status = Status.WON;
             }
         }
+    }
+
+    /** Deals the next Room. Under Hunger, every second Room costs health first, and that can end the run instead. */
+    private static void nextRoom(Draft draft) {
+        if (draft.rules.has(Modifier.HUNGER) && (draft.rooms + 1) % 2 == 0) {
+            draft.health -= HUNGER_COST;
+            draft.emit(new Event.HungerFelt(HUNGER_COST));
+            if (draft.health <= 0) {
+                draft.status = Status.LOST;
+                return;
+            }
+        }
+        draft.dealRoom();
     }
 
     private static Card cardIn(GameState state, int slot, CardType type) {
@@ -166,6 +215,10 @@ public final class Rules {
         }
         Card card =
                 state.room().card(slot).orElseThrow(() -> new IllegalActionException("Slot " + slot + " is empty."));
+        if (state.isFaceDown(slot)) {
+            throw new IllegalActionException(
+                    "Slot " + slot + " is face down until another card in the Room is resolved.");
+        }
         if (card.type() != type) {
             throw new IllegalActionException("Slot " + slot + " holds " + card + ", which isn't a " + type + ".");
         }

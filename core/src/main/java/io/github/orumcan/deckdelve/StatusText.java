@@ -10,9 +10,17 @@ final class StatusText {
     static String of(List<Event> events, Ui ui) {
         String message = "";
         boolean dealt = false;
+        boolean faceDown = false;
+        boolean broke = false;
+        boolean revealed = false;
         for (Event event : events) {
-            if (event instanceof Event.CardDealt) {
+            if (event instanceof Event.CardDealt card) {
                 dealt = true;
+                faceDown |= card.faceDown();
+            } else if (event instanceof Event.CardRevealed) {
+                revealed = true;
+            } else if (event instanceof Event.WeaponBroke) {
+                broke = true;
             } else if (event instanceof Event.RoomAvoided) {
                 message = ui.text("status.avoided");
             } else if (event instanceof Event.WeaponEquipped equipped) {
@@ -23,11 +31,23 @@ final class StatusText {
                 message = ui.text("status.wasted");
             } else if (event instanceof Event.MonsterFought fought) {
                 message = fought.damage() > 0 ? ui.text("status.damage", fought.damage()) : ui.text("status.noDamage");
+            } else if (event instanceof Event.HungerFelt hunger) {
+                message = then(message, ui.text("status.hunger", hunger.damage()));
             }
         }
+        if (broke) {
+            message = then(message, ui.text("status.broke"));
+        }
+        if (revealed) {
+            message = then(message, ui.text("status.revealed"));
+        }
         if (dealt) {
-            message = message.isEmpty() ? ui.text("status.newRoom") : message + " " + ui.text("status.newRoom");
+            message = then(message, ui.text(faceDown ? "status.newRoomFog" : "status.newRoom"));
         }
         return message;
+    }
+
+    private static String then(String message, String next) {
+        return message.isEmpty() ? next : message + " " + next;
     }
 }

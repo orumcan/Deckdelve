@@ -73,7 +73,7 @@ class SimulationTest {
         assertEquals(Deck.SIZE, cards.size(), "No card is lost or duplicated");
         assertEquals(new HashSet<>(Deck.ordered()), new HashSet<>(cards), "Every card is somewhere");
 
-        assertTrue(state.health() <= Rules.MAX_HEALTH, "Health never goes over 20");
+        assertTrue(state.health() <= Rules.maxHealth(state.rules()), "Health never goes over 20");
         if (!state.isOver()) {
             assertTrue(state.health() > 0, "A run in progress has health left");
         }

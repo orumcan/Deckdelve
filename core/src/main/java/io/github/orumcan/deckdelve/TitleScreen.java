@@ -30,9 +30,12 @@ final class TitleScreen extends StageScreen {
                 .padTop(72)
                 .row();
         Table more = new Table();
-        more.defaults().size(240, 84).space(24);
+        more.defaults().size(280, 84).space(24);
         more.add(button(ui.text("title.rules"), ui.styles.secondary, game::showRules));
         more.add(button(ui.text("title.tutorial"), ui.styles.secondary, game::startTutorial))
+                .row();
+        more.add(button(ui.text("title.achievements"), ui.styles.secondary, game::showAchievements));
+        more.add(button(ui.text("title.stats"), ui.styles.secondary, game::showStats))
                 .row();
         more.add(button(ui.text("title.settings"), ui.styles.secondary, game::showSettings));
         more.add(button(ui.text("title.credits"), ui.styles.secondary, game::showCredits));

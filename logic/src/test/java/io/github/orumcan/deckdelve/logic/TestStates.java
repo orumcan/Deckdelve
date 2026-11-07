@@ -3,13 +3,16 @@ package io.github.orumcan.deckdelve.logic;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 final class TestStates {
     private RulesConfig rules = RulesConfig.OFFICIAL;
     private List<Card> dungeon = List.of();
     private Card[] room = new Card[Room.SIZE];
-    private int health = Rules.MAX_HEALTH;
+    private Integer health;
+    private OptionalInt faceDown = OptionalInt.empty();
     private Weapon weapon;
+    private int rooms = 1;
     private int resolvedInRoom;
     private boolean potionUsed;
     private boolean lastRoomAvoided;
@@ -75,6 +78,11 @@ final class TestStates {
         return this;
     }
 
+    TestStates rooms(int rooms) {
+        this.rooms = rooms;
+        return this;
+    }
+
     TestStates resolvedInRoom(int resolvedInRoom) {
         this.resolvedInRoom = resolvedInRoom;
         return this;
@@ -90,15 +98,22 @@ final class TestStates {
         return this;
     }
 
+    TestStates faceDown(int slot) {
+        faceDown = OptionalInt.of(slot);
+        return this;
+    }
+
     GameState build() {
         return new GameState(
                 Seed.of(0),
                 rules,
                 dungeon,
                 Room.of(room),
-                health,
+                faceDown,
+                health != null ? health : Rules.maxHealth(rules),
                 Optional.ofNullable(weapon),
                 List.of(),
+                rooms,
                 resolvedInRoom,
                 potionUsed,
                 lastRoomAvoided,

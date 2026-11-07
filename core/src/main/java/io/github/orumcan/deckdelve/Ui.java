@@ -4,8 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.I18NBundle;
+import io.github.orumcan.deckdelve.logic.Modifier;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /** What every screen shares: the batch, the text bundle, the fonts, the card theme and the drawing code. */
 final class Ui implements Disposable {
@@ -41,6 +44,39 @@ final class Ui implements Disposable {
 
     String language() {
         return text.getLocale().getLanguage();
+    }
+
+    /** A multiplier given in hundredths, as players read it: 140 is ×1.4. */
+    String multiplier(int hundredths) {
+        return text("multiplier", decimal(hundredths));
+    }
+
+    /** A number given in hundredths, without trailing zeros: 140 is 1.4, and 100 is 1. */
+    static String decimal(int hundredths) {
+        int whole = hundredths / 100;
+        int fraction = hundredths % 100;
+        if (fraction == 0) {
+            return Integer.toString(whole);
+        }
+        if (fraction % 10 == 0) {
+            return whole + "." + fraction / 10;
+        }
+        return whole + "." + (fraction < 10 ? "0" : "") + fraction;
+    }
+
+    /** The modifiers' names in their usual order, such as "Fragile · Fog". */
+    String modifierNames(Set<Modifier> modifiers) {
+        String names = "";
+        for (Modifier modifier : modifiers) {
+            String name = text(key("modifier", modifier));
+            names = names.isEmpty() ? name : text("names.join", names, name);
+        }
+        return names;
+    }
+
+    /** A text key named after an enum constant, such as modifier.no_retreat for {@link Modifier#NO_RETREAT}. */
+    static String key(String prefix, Enum<?> value) {
+        return prefix + "." + value.name().toLowerCase(Locale.ROOT);
     }
 
     String themeId() {

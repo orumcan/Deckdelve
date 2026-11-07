@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import io.github.orumcan.deckdelve.logic.Rules;
 import io.github.orumcan.deckdelve.logic.Suit;
 
 final class HealthBar extends Actor {
@@ -14,13 +13,15 @@ final class HealthBar extends Actor {
 
     private final Ui ui;
     private final int health;
+    private final int max;
     private final String label;
     private final GlyphLayout layout = new GlyphLayout();
 
-    HealthBar(Ui ui, int health) {
+    HealthBar(Ui ui, int health, int max) {
         this.ui = ui;
         this.health = health;
-        label = ui.text("table.health", health, Rules.MAX_HEALTH);
+        this.max = max;
+        label = ui.text("table.health", health, max);
     }
 
     @Override
@@ -33,7 +34,7 @@ final class HealthBar extends Actor {
         float barWidth = getWidth() - size - GAP;
         batch.setColor(0, 0, 0, 0.3f * parentAlpha);
         ui.art.rounded.draw(batch, barX, getY(), barWidth, size);
-        float filled = MathUtils.clamp(health / (float) Rules.MAX_HEALTH, 0, 1) * barWidth;
+        float filled = MathUtils.clamp(health / (float) max, 0, 1) * barWidth;
         if (filled > 0) {
             float fillWidth = Math.max(filled, size);
             // A lighter rim along the top edge, like the buttons.
