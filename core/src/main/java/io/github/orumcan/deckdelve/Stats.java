@@ -16,7 +16,7 @@ final class Stats {
         row(numbers, ui, "stats.runs", Integer.toString(profile.runs()));
         row(numbers, ui, "stats.wins", Integer.toString(profile.career().wins()));
         row(numbers, ui, "stats.streak", Integer.toString(profile.career().streak()));
-        row(numbers, ui, "stats.best", profile.bestScore().map(String::valueOf).orElse(ui.text("stats.none")));
+        row(numbers, ui, "stats.best", profile.bestScore().map(Ui::number).orElse(ui.text("stats.none")));
         page.add(numbers).width(Pages.TEXT_WIDTH).row();
 
         Pages.section(page, ui, "stats.nemesis.title");

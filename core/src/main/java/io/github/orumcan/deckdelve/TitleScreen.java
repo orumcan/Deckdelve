@@ -25,7 +25,8 @@ final class TitleScreen extends StageScreen {
         root.add(new Label(ui.text("title.name"), ui.styles.title)).padTop(48).row();
         root.add(new Label(ui.text("title.author"), ui.styles.muted)).row();
         root.add(new Label(ui.text("title.credit"), ui.styles.small)).padTop(28).row();
-        root.add(button(ui.text("title.play"), ui.styles.primary, this::play))
+        String play = game.hasSavedRun() ? "title.continue" : "title.play";
+        root.add(button(ui.text(play), ui.styles.primary, this::play))
                 .size(360, 100)
                 .padTop(72)
                 .row();
@@ -60,7 +61,7 @@ final class TitleScreen extends StageScreen {
 
     private void play() {
         if (game.tutorialOffered()) {
-            game.startRun();
+            game.play();
         } else {
             offerTutorial();
         }

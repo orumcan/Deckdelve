@@ -5,10 +5,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.math.MathUtils;
-import io.github.orumcan.deckdelve.logic.GameState;
-import io.github.orumcan.deckdelve.logic.Rules;
 import io.github.orumcan.deckdelve.logic.RulesConfig;
 import io.github.orumcan.deckdelve.logic.Seed;
+import java.util.Optional;
 
 public class DeckdelveGame extends Game {
     private Ui ui;
@@ -18,6 +17,7 @@ public class DeckdelveGame extends Game {
     public void create() {
         profile = new Profile();
         ui = new Ui(profile.theme());
+        ui.sounds.volume(profile.volume() / 100f);
         ui.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.input.setCatchKey(Input.Keys.BACK, true);
         setScreen(new TitleScreen(this, ui));
@@ -58,9 +58,24 @@ public class DeckdelveGame extends Game {
         profile.theme(id);
     }
 
+    /** Continues the saved run as it was left, or starts a new one when there's none. */
+    void play() {
+        Optional<SavedRun> saved = profile.savedRun();
+        if (saved.isPresent()) {
+            later(() -> setScreen(new TableScreen(this, ui, saved.get())));
+        } else {
+            startRun();
+        }
+    }
+
+    boolean hasSavedRun() {
+        return profile.savedRun().isPresent();
+    }
+
+    /** A new run with the rules picked in Settings, saved from its first room. */
     void startRun() {
-        GameState run = Rules.start(Seed.of(MathUtils.random.nextLong()), profile.rules())
-                .state();
+        SavedRun run = SavedRun.start(Seed.of(MathUtils.random.nextLong()), profile.rules());
+        profile.save(run);
         later(() -> setScreen(new TableScreen(this, ui, run)));
     }
 
@@ -70,7 +85,7 @@ public class DeckdelveGame extends Game {
 
     void startTutorial() {
         profile.markTutorialOffered();
-        GameState run = Rules.start(Tutorial.SEED, RulesConfig.OFFICIAL).state();
+        SavedRun run = SavedRun.start(Tutorial.SEED, RulesConfig.OFFICIAL);
         later(() -> setScreen(new TableScreen(this, ui, run, new Tutorial())));
     }
 

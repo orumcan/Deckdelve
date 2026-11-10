@@ -16,6 +16,10 @@ final class Fonts implements Disposable {
     private static final float MAX_PIXELS_PER_UNIT = 2;
 
     private static final String DIGITS = "0123456789";
+    /** Negative numbers and sums are written with the true minus sign. */
+    private static final String MINUS = "\u2212";
+    /** Every letter, digit and sign the interface writes: Latin-1, and the minus sign. */
+    private static final String TEXT = FreeTypeFontGenerator.DEFAULT_CHARS + MINUS;
 
     BitmapFont title;
     BitmapFont heading;
@@ -49,14 +53,14 @@ final class Fonts implements Disposable {
         this.pixelsPerUnit = pixelsPerUnit;
         String ranks = text.get("rank.jack") + text.get("rank.queen") + text.get("rank.king");
         // The large display fonts hold only the characters they draw, which keeps their textures small.
-        title = font(bold, 104, text.get("title.name") + DIGITS + "-", 4);
+        title = font(bold, 104, text.get("title.name") + DIGITS + MINUS, 4);
         face = font(bold, 68, ranks, 0);
         index = font(bold, 28, DIGITS + ranks + text.get("rank.ace"), 0);
-        heading = font(bold, 46, FreeTypeFontGenerator.DEFAULT_CHARS, 2);
-        button = font(bold, 34, FreeTypeFontGenerator.DEFAULT_CHARS, 0);
-        body = font(regular, 30, FreeTypeFontGenerator.DEFAULT_CHARS, 0);
-        small = font(regular, 24, FreeTypeFontGenerator.DEFAULT_CHARS, 0);
-        name = font(bold, 15, FreeTypeFontGenerator.DEFAULT_CHARS, 0);
+        heading = font(bold, 46, TEXT, 2);
+        button = font(bold, 34, TEXT, 0);
+        body = font(regular, 30, TEXT, 0);
+        small = font(regular, 24, TEXT, 0);
+        name = font(bold, 15, TEXT, 0);
         return true;
     }
 

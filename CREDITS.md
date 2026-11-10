@@ -8,8 +8,26 @@ Deckdelve is based on [Scoundrel](http://www.stfj.net/art/2011/Scoundrel.pdf) by
 |---|---|---|---|
 | Rubik font (`assets/fonts`) | The Rubik Project Authors | [SIL Open Font License 1.1](assets/fonts/OFL.txt) | [Google Fonts](https://fonts.google.com/specimen/Rubik) |
 | Fantasy theme icons (`assets/themes/fantasy/icons`) | Lorc, Delapouite, Skoll and Caro Asercion | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) | [game-icons.net](https://game-icons.net) |
+| Sounds (`assets/sounds`) | Kenney | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | [kenney.nl](https://kenney.nl/assets) |
 
 The cards, suits and panels are drawn by the game's own code.
+
+### Sounds
+
+Converted from Kenney's OGG files to mono 16-bit WAV, which every browser can play, with the silence around them trimmed and their peaks levelled.
+
+| File | Plays when | Pack | Original |
+|---|---|---|---|
+| `deal.wav` | A card is dealt | [Casino Audio](https://kenney.nl/assets/casino-audio) | `card-slide-2.ogg` |
+| `turn.wav` | A face-down card turns over | [Casino Audio](https://kenney.nl/assets/casino-audio) | `card-place-1.ogg` |
+| `shove.wav` | A room is avoided, or a potion is wasted | [Casino Audio](https://kenney.nl/assets/casino-audio) | `card-shove-3.ogg` |
+| `weapon.wav` | A weapon is equipped | [RPG Audio](https://kenney.nl/assets/rpg-audio) | `drawKnife3.ogg` |
+| `slash.wav` | A monster is fought with the weapon | [RPG Audio](https://kenney.nl/assets/rpg-audio) | `knifeSlice.ogg` |
+| `punch.wav` | A monster is fought barehanded | [Impact Sounds](https://kenney.nl/assets/impact-sounds) | `impactPunch_medium_000.ogg` |
+| `potion.wav` | A potion heals | [Interface Sounds](https://kenney.nl/assets/interface-sounds) | `drop_004.ogg` |
+| `break.wav` | A weapon breaks | [Impact Sounds](https://kenney.nl/assets/impact-sounds) | `impactGlass_heavy_000.ogg` |
+| `win.wav` | A run is won | [Music Jingles](https://kenney.nl/assets/music-jingles) | `jingles_PIZZI02.ogg` |
+| `death.wav` | A run is lost | [Music Jingles](https://kenney.nl/assets/music-jingles) | `jingles_PIZZI01.ogg` |
 
 ### Fantasy icons
 

@@ -4,6 +4,10 @@ import io.github.orumcan.deckdelve.logic.Suit;
 
 final class SuitShapes {
     private static final float SPREAD = 0.2f;
+    /** How far each half of the broken heart is pulled from the crack. */
+    private static final float BREAK = 0.035f;
+    /** The crack's bends from the top of the heart to its tip, as pairs of height and place across. */
+    private static final float[] CRACK = {1, 0.5f, 0.64f, 0.41f, 0.47f, 0.58f, 0.3f, 0.43f, 0, 0.5f};
 
     private SuitShapes() {}
 
@@ -14,6 +18,26 @@ final class SuitShapes {
             case DIAMONDS -> (x, y) -> Math.abs(x - 0.5f) / 0.38f + Math.abs(y - 0.5f) / 0.48f <= 1;
             case HEARTS -> lobes(0.66f, 0.25f, 0.06f);
         };
+    }
+
+    /** The heart cracked in two down a jagged line, with its halves pulled apart. */
+    static Raster.Shape brokenHeart() {
+        Raster.Shape heart = of(Suit.HEARTS);
+        return (x, y) -> {
+            float crack = crack(y);
+            return x + BREAK < crack && heart.contains(x + BREAK, y)
+                    || x - BREAK >= crack && heart.contains(x - BREAK, y);
+        };
+    }
+
+    private static float crack(float y) {
+        for (int i = 2; i < CRACK.length; i += 2) {
+            if (y >= CRACK[i]) {
+                float t = (y - CRACK[i]) / (CRACK[i - 2] - CRACK[i]);
+                return CRACK[i + 1] + t * (CRACK[i - 1] - CRACK[i + 1]);
+            }
+        }
+        return 0.5f;
     }
 
     private static Raster.Shape spade() {

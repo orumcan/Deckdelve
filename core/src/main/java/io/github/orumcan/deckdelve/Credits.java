@@ -20,6 +20,9 @@ final class Credits {
         Pages.section(page, ui, "credits.font.title");
         Pages.paragraph(page, ui, "credits.font.body");
 
+        Pages.section(page, ui, "credits.sound.title");
+        Pages.paragraph(page, ui, "credits.sound.body");
+
         Pages.section(page, ui, "credits.themes.title");
         for (String id : ui.themes.ids()) {
             ThemeData theme = ui.themes.data(id);

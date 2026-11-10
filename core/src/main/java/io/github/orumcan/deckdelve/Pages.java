@@ -1,12 +1,15 @@
 package io.github.orumcan.deckdelve;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.badlogic.gdx.utils.Align;
 import io.github.orumcan.deckdelve.logic.Card;
 
@@ -33,10 +36,35 @@ final class Pages {
 
     static ScrollPane scroller(Ui ui, Table content) {
         content.top().pad(8, PAD, PAD * 2, PAD);
-        ScrollPane scroll = new ScrollPane(content, ui.styles.scroll);
+        // ScrollPane's own wheel step is a fifth of the page, which throws a trackpad's many small steps to the end.
+        ScrollPane scroll = new ScrollPane(content, ui.styles.scroll) {
+            @Override
+            protected float getMouseWheelY() {
+                return wheelPixels() * getStage().getHeight() / Gdx.graphics.getHeight();
+            }
+        };
         scroll.setScrollingDisabled(true, false);
         scroll.setFadeScrollBars(false);
+        // The wheel moves the page at once, as a finger on a trackpad expects. Only the keys glide.
+        scroll.addListener(new InputListener() {
+            @Override
+            public boolean scrolled(InputEvent event, float x, float y, float amountX, float amountY) {
+                scroll.updateVisualScroll();
+                return true;
+            }
+        });
         return scroll;
+    }
+
+    /**
+     * The screen pixels a page moves for each unit of wheel scrolling. What a unit is depends on the platform: the web
+     * launcher reports pixels, macOS a tenth of the distance a trackpad moves, and the others one notch of a wheel.
+     */
+    private static float wheelPixels() {
+        if (Gdx.app.getType() == Application.ApplicationType.WebGL) {
+            return 1;
+        }
+        return UIUtils.isMac ? 16 : 48;
     }
 
     /** Scrolls with the arrow and page keys, and returns whether the key was one of them. */

@@ -22,6 +22,7 @@ final class Ui implements Disposable {
     final Art art = new Art();
     final Fonts fonts;
     final Themes themes = new Themes();
+    final Sounds sounds = new Sounds();
     final CardPainter cards;
     Styles styles;
     /** Themes stay loaded once used, so Settings can preview them and switching back is instant. */
@@ -49,6 +50,11 @@ final class Ui implements Disposable {
     /** A multiplier given in hundredths, as players read it: 140 is ×1.4. */
     String multiplier(int hundredths) {
         return text("multiplier", decimal(hundredths));
+    }
+
+    /** A whole number with a true minus sign when it's below 0, not a hyphen, such as a death's score. */
+    static String number(int value) {
+        return value < 0 ? "\u2212" + -value : Integer.toString(value);
     }
 
     /** A number given in hundredths, without trailing zeros: 140 is 1.4, and 100 is 1. */
@@ -110,6 +116,7 @@ final class Ui implements Disposable {
     public void dispose() {
         batch.dispose();
         art.dispose();
+        sounds.dispose();
         fonts.dispose();
         for (Theme theme : loaded.values()) {
             theme.dispose();

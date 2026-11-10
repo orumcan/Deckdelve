@@ -25,6 +25,7 @@ abstract class StageScreen extends ScreenAdapter {
 
     final Ui ui;
     final Stage stage;
+    private Table root;
     private Table modal;
     private IntPredicate modalKeys;
     /** Opens the current dialog again after a rebuild, so resizing the window doesn't close it. */
@@ -52,7 +53,7 @@ abstract class StageScreen extends ScreenAdapter {
         stage.getRoot().clearChildren();
         modal = null;
         modalKeys = null;
-        Table root = new Table();
+        root = new Table();
         root.setFillParent(true);
         root.setBackground(ui.styles.vignette);
         stage.addActor(root);
@@ -60,6 +61,11 @@ abstract class StageScreen extends ScreenAdapter {
         if (modal == null && reopen != null) {
             reopen.run();
         }
+    }
+
+    /** Lays the screen out now instead of at the next frame, so where its actors sit can be read. */
+    void layOut() {
+        root.validate();
     }
 
     boolean dialogOpen() {
@@ -82,11 +88,13 @@ abstract class StageScreen extends ScreenAdapter {
     }
 
     /**
-     * Shows a dialog over the dimmed screen. {@code reopen} builds it again after a rebuild; a dialog the screen's state
-     * brings back by itself, like the end of a run, passes null.
+     * Shows a dialog over the dimmed screen, and returns the dimmed layer it sits on. {@code reopen} builds it again
+     * after a rebuild; a dialog the screen's state brings back by itself, like the end of a run, passes null.
      */
-    void open(Table panel, Runnable reopen, boolean closeOnOutsideClick, IntPredicate keys) {
-        overlay(reopen, closeOnOutsideClick, keys).add(panel).width(PANEL_WIDTH);
+    Table open(Table panel, Runnable reopen, boolean closeOnOutsideClick, IntPredicate keys) {
+        Table overlay = overlay(reopen, closeOnOutsideClick, keys);
+        overlay.add(panel).width(PANEL_WIDTH);
+        return overlay;
     }
 
     /** Like {@link #open}, for a page that takes the screen's full height. */

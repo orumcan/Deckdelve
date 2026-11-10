@@ -44,6 +44,32 @@ final class Surfaces {
         });
     }
 
+    /** A round knob, such as a slider's, raised like a button: a soft shadow, and its face above a darker lip. */
+    static Drawable knob(Art art, Color face, Color lip, float size) {
+        float rise = PRESS;
+        BaseDrawable knob = new BaseDrawable() {
+            @Override
+            public void draw(Batch batch, float x, float y, float width, float height) {
+                Color tint = batch.getColor();
+                float r = tint.r;
+                float g = tint.g;
+                float b = tint.b;
+                float a = tint.a;
+                float spread = art.shadowSpread();
+                batch.setColor(0, 0, 0, 0.4f * a);
+                art.shadow.draw(batch, x - spread, y - spread - 3, size + 2 * spread, size + 2 * spread);
+                batch.setColor(lip.r, lip.g, lip.b, lip.a * a);
+                batch.draw(art.disc, x, y, size, size);
+                batch.setColor(face.r, face.g, face.b, face.a * a);
+                batch.draw(art.disc, x, y + rise, size, size);
+                batch.setColor(r, g, b, a);
+            }
+        };
+        knob.setMinWidth(size);
+        knob.setMinHeight(size + rise);
+        return knob;
+    }
+
     /** A disabled button: the face lies flat on the table, with the same padding so its label doesn't move. */
     static Drawable flat(Art art, Color color) {
         return padded(new BaseDrawable() {

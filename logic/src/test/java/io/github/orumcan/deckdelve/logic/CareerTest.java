@@ -31,7 +31,7 @@ class CareerTest {
 
     @Test
     void veteranNeedsTenWins() {
-        Career career = new Career(9, 0, Set.of());
+        Career career = new Career(9, 0, Set.of(), 1);
 
         assertFalse(career.earned().contains(Achievement.VETERAN));
         assertTrue(career.after(win(Set.of())).earned().contains(Achievement.VETERAN));
@@ -45,6 +45,45 @@ class CareerTest {
         assertFalse(career.earned().contains(Achievement.CHALLENGER));
 
         assertTrue(career.after(win(Set.of(Modifier.FOG))).earned().contains(Achievement.CHALLENGER));
+    }
+
+    @Test
+    void modifiersOpenWithTheFirstWin() {
+        assertEquals(0, Career.start().modifierLimit());
+        assertEquals(0, Career.start().after(loss()).modifierLimit());
+        assertEquals(1, Career.start().after(win(Set.of())).modifierLimit());
+    }
+
+    @Test
+    void aWinAllowsOneMoreModifierThanItHad() {
+        Career career = Career.start().after(win(Set.of())).after(win(Set.of(Modifier.FOG)));
+        assertEquals(2, career.modifierLimit());
+
+        assertEquals(3, career.after(win(Set.of(Modifier.FOG, Modifier.THORNS))).modifierLimit());
+    }
+
+    @Test
+    void theLimitNeverDrops() {
+        Career career = Career.start().after(win(Set.of(Modifier.FOG, Modifier.THORNS)));
+
+        assertEquals(3, career.after(win(Set.of())).modifierLimit());
+        assertEquals(3, career.after(loss()).modifierLimit());
+    }
+
+    @Test
+    void theLimitStopsAtEveryModifier() {
+        Career career = Career.start().after(win(EnumSet.allOf(Modifier.class)));
+
+        assertEquals(Modifier.values().length, career.modifierLimit());
+    }
+
+    @Test
+    void modifiersPastTheLimitAreLeftOut() {
+        Career career = new Career(1, 1, Set.of(), 2);
+        Set<Modifier> chosen = EnumSet.of(Modifier.HUNGER, Modifier.FRAGILE, Modifier.FOG);
+
+        assertEquals(EnumSet.of(Modifier.FRAGILE, Modifier.FOG), career.allowed(chosen));
+        assertEquals(Set.of(), Career.start().allowed(chosen));
     }
 
     private static GameState win(Set<Modifier> modifiers) {

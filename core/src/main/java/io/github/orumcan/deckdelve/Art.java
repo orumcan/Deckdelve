@@ -19,6 +19,8 @@ final class Art implements Disposable {
     final NinePatch wideShadow;
     final TextureRegion pixel;
     final TextureRegion vignette;
+    final TextureRegion disc;
+    final TextureRegion brokenHeart;
     private final TextureRegion[] suits = new TextureRegion[Suit.values().length];
     private final Array<Pixmap> pixmaps = new Array<>();
     private final Array<Texture> textures = new Array<>();
@@ -33,6 +35,8 @@ final class Art implements Disposable {
         wideShadow = new NinePatch(soft, 40, 40, 40, 40);
         pixel = new TextureRegion(texture(Raster.paint(4, 4, (x, y) -> 1)));
         vignette = new TextureRegion(texture(Raster.paint(64, 64, Art::vignette)));
+        disc = new TextureRegion(texture(Raster.roundedSquare(64, 1, 31, 0)));
+        brokenHeart = new TextureRegion(texture(Raster.paint(128, SuitShapes.brokenHeart())));
         for (Suit suit : Suit.values()) {
             suits[suit.ordinal()] = new TextureRegion(texture(Raster.paint(128, SuitShapes.of(suit))));
         }
