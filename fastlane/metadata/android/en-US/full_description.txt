@@ -1,0 +1,20 @@
+Deckdelve is a solo dungeon crawl played with a 44-card deck. Clubs and spades are monsters, diamonds are weapons and hearts are potions. Each room deals four cards: you take three of them in any order, and the fourth stays for the next room. Get through the whole deck with health to spare and you win. A run takes five to ten minutes.
+
+It is a faithful version of Scoundrel, the card game by Zach Gage and Kurt Bieg, and you can play the same game with any deck of cards. The official rules are the default, and everything added on top is optional.
+
+<b>What's in it</b>
+<ul>
+<li>The classic rules, with a guided tutorial run and a How to Play page</li>
+<li>Every fight shows its exact damage before you choose, and says so when a choice would end the run</li>
+<li>Two card themes: plain playing cards, or a fantasy deck that gives every monster, weapon and potion a name and a picture</li>
+<li>Eight challenge modifiers that multiply your score, opened by winning</li>
+<li>Twenty achievements, and stats that know which monster kills you most</li>
+<li>Rule variants for the points the original rules leave open</li>
+<li>Your run is saved after every move, so you can stop at any time</li>
+</ul>
+
+<b>What's not in it</b>
+
+No ads, no accounts, no tracking and no network access: the app doesn't even hold the internet permission.
+
+Deckdelve is free software under the GNU GPL, version 3 or later. It isn't affiliated with or endorsed by Scoundrel's designers. The fantasy deck's pictures are by Lorc, Delapouite, Skoll and Caro Asercion from game-icons.net (CC BY 3.0), the sounds are Kenney's (CC0), and the font is Rubik (OFL).

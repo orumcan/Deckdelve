@@ -27,8 +27,14 @@ android {
     applicationId = 'io.github.orumcan.deckdelve'
     minSdk = 21
     targetSdk = 36
-    versionCode = 1
+    versionCode = projectVersionCode as int
     versionName = projectVersion
+  }
+
+  // Leaves out the list of dependencies that only Google Play can read, which F-Droid doesn't accept.
+  dependenciesInfo {
+    includeInApk = false
+    includeInBundle = false
   }
 
   compileOptions {

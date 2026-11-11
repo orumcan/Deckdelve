@@ -5,6 +5,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.github.xpenatan.gdx.teavm.backends.web.WebApplication;
 import com.github.xpenatan.gdx.teavm.backends.web.WebApplicationConfiguration;
 import io.github.orumcan.deckdelve.DeckdelveGame;
+import org.teavm.jso.JSBody;
 import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.events.WheelEvent;
 import org.teavm.jso.dom.html.HTMLDocument;
@@ -21,6 +22,12 @@ public class TeaVMLauncher {
             meta.setAttribute("name", "viewport");
             meta.setAttribute("content", "width=device-width, initial-scale=1");
         }));
+        // Nor does it have an icon for the browser's tab.
+        document.getHead().appendChild(document.createElement("link", link -> {
+            link.setAttribute("rel", "icon");
+            link.setAttribute("type", "image/png");
+            link.setAttribute("href", "assets/web/icon.png");
+        }));
         WebApplicationConfiguration config = new WebApplicationConfiguration("canvas");
         // A width and height of 0 make the canvas fill the browser window.
         config.width = 0;
@@ -29,9 +36,16 @@ public class TeaVMLauncher {
         config.usePhysicalPixels = true;
         // FreeType runs from a script that has to finish loading before the game creates its fonts.
         config.preloadListener = assetLoader -> assetLoader.loadScript("freetype.js");
-        new WebApplication(new DeckdelveGame(), config);
+        new WebApplication(new DeckdelveGame(pointsByTouch()), config);
         scrollByDistance();
     }
+
+    /**
+     * gdx-teavm reports a keyboard on every device, so the game can't tell a phone from a laptop. The browser can: a
+     * phone's or a tablet's main pointer is a finger.
+     */
+    @JSBody(script = "return window.matchMedia('(pointer: coarse)').matches;")
+    private static native boolean pointsByTouch();
 
     /**
      * gdx-teavm counts every wheel event as one notch, whatever distance it carries, so a trackpad's stream of small

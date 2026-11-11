@@ -1,0 +1,94 @@
+name: Release
+
+# Pushing a tag such as v1.0.0 builds every package and collects them in a draft release to look over and publish.
+# Run by hand from the Actions tab, it only builds the packages, as a rehearsal.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  packages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Check that the tag names the version, and that the version has release notes
+        if: github.ref_type == 'tag'
+        run: |
+          version=$(sed -n 's/^projectVersion=//p' gradle.properties)
+          code=$(sed -n 's/^projectVersionCode=//p' gradle.properties)
+          test "$GITHUB_REF_NAME" = "v$version"
+          test -s "fastlane/metadata/android/en-US/changelogs/$code.txt"
+      - run: ./gradlew build lwjgl3:packageLinuxX64 lwjgl3:packageWinX64 teavm:zipWeb
+      - name: Collect the packages
+        run: |
+          mkdir packages
+          cp lwjgl3/build/dist/*.zip lwjgl3/build/libs/Deckdelve-*.jar teavm/build/dist/*.zip packages/
+      - uses: actions/upload-artifact@v7
+        with:
+          name: packages
+          path: packages/
+          if-no-files-found: error
+
+  mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v6
+      - run: ./gradlew lwjgl3:packageMacM1 lwjgl3:packageMacX64
+      # The packaged app carries no signature over its files, and macOS calls such a download damaged. Signed ad hoc,
+      # it is only unverified, which the player can allow in System Settings. ditto keeps the signatures that live in
+      # extended attributes, which zip would drop.
+      - name: Sign the apps ad hoc
+        run: |
+          for zip in lwjgl3/build/dist/*-macos-*.zip; do
+            unpacked=$(mktemp -d)
+            ditto -x -k "$zip" "$unpacked"
+            app=$unpacked/Deckdelve/Deckdelve.app
+            codesign --force --deep --sign - "$app"
+            codesign --verify --deep --strict "$app"
+            rm "$zip"
+            ditto -c -k --keepParent "$app" "$zip"
+          done
+      - uses: actions/upload-artifact@v7
+        with:
+          name: mac-packages
+          path: lwjgl3/build/dist/*.zip
+          if-no-files-found: error
+
+  draft:
+    if: github.ref_type == 'tag'
+    needs: [packages, mac]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          path: packages
+          merge-multiple: true
+      - name: Draft the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          code=$(sed -n 's/^projectVersionCode=//p' gradle.properties)
+          cp "fastlane/metadata/android/en-US/changelogs/$code.txt" notes.md
+          printf '\nHow to install on each platform: %s#install\n' "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" >> notes.md
+          cd packages
+          sha256sum * > ../SHA256SUMS.txt
+          mv ../SHA256SUMS.txt .
+          gh release create "$GITHUB_REF_NAME" --draft --verify-tag \
+            --title "Deckdelve ${GITHUB_REF_NAME#v}" --notes-file ../notes.md *

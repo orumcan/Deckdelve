@@ -1,0 +1,43 @@
+name: Bug report
+description: Something in the game doesn't work as it should
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected and what happened instead. A screenshot helps.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The Credits screen shows it.
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Android
+        - Web
+        - Windows
+        - macOS
+        - Linux
+        - The JAR, on something else
+    validations:
+      required: true
+  - type: input
+    id: seed
+    attributes:
+      label: Seed
+      description: If it happened during a run, the seed from the panel that ends the run. It lets us replay your dungeon.
+      placeholder: 7KQ2-M9XD
+  - type: textarea
+    id: settings
+    attributes:
+      label: Modifiers and rule variants
+      description: The ones you had switched on in Settings, if any.

@@ -1,6 +1,5 @@
 package io.github.orumcan.deckdelve;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -239,7 +238,7 @@ final class TableScreen extends StageScreen {
             preview(index).ifPresent(action -> previewWhileOver(actor, health, action));
             room.add(actor).size(CardActor.WIDTH, CardActor.HEIGHT);
         }
-        if (Gdx.input.isPeripheralAvailable(Input.Peripheral.HardwareKeyboard)) {
+        if (game.showsKeyHints()) {
             room.row();
             for (int slot = 0; slot < Room.SIZE; slot++) {
                 room.add(new Label(Integer.toString(slot + 1), ui.styles.small)).spaceTop(10);

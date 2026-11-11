@@ -1,6 +1,8 @@
 # Credits
 
-Deckdelve is based on [Scoundrel](http://www.stfj.net/art/2011/Scoundrel.pdf) by Zach Gage and Kurt Bieg. It isn't affiliated with or endorsed by them.
+Deckdelve is made by Ömür Can Güngören, known as orumcan: [orumcan.com](https://orumcan.com/).
+
+It is based on [Scoundrel](http://www.stfj.net/art/2011/Scoundrel.pdf) by Zach Gage and Kurt Bieg, and isn't affiliated with or endorsed by them.
 
 ## Assets
 
@@ -10,7 +12,7 @@ Deckdelve is based on [Scoundrel](http://www.stfj.net/art/2011/Scoundrel.pdf) by
 | Fantasy theme icons (`assets/themes/fantasy/icons`) | Lorc, Delapouite, Skoll and Caro Asercion | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) | [game-icons.net](https://game-icons.net) |
 | Sounds (`assets/sounds`) | Kenney | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | [kenney.nl](https://kenney.nl/assets) |
 
-The cards, suits and panels are drawn by the game's own code.
+The cards, suits and panels are drawn by the game's own code, and so is the app icon.
 
 ### Sounds
 
@@ -79,3 +81,21 @@ Shrunk from 512 to 256 pixels and renamed after the cards that use them, with th
 | `wraith.png` | Wraith | [spectre](https://game-icons.net/1x1/lorc/spectre.html) | Lorc |
 | `wyvern.png` | Wyvern | [wyvern](https://game-icons.net/1x1/lorc/wyvern.html) | Lorc |
 | `zombie.png` | Zombie | [raise-zombie](https://game-icons.net/1x1/skoll/raise-zombie.html) | Skoll |
+
+## Libraries
+
+Deckdelve's own code is under the [GNU General Public License v3.0 or later](LICENSE). Its builds also carry these libraries, each under its own license:
+
+| Library | In | License |
+|---|---|---|
+| [libGDX](https://libgdx.com) | Every build | [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) |
+| [FreeType](https://freetype.org), which libGDX's gdx-freetype brings along | Every build | [FreeType License](https://freetype.org/license.html) |
+| [LWJGL 3](https://www.lwjgl.org), with the GLFW, OpenAL Soft, jemalloc and stb libraries it bundles | Desktop | [BSD 3-Clause](https://www.lwjgl.org/license), and each bundled library's own license, listed on the same page |
+| JLayer and JOrbis, which libGDX's desktop backend brings along | Desktop | [GNU Lesser General Public License](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html) |
+| [Eclipse Temurin](https://adoptium.net), the Java runtime inside the desktop packages | Desktop packages | [GNU General Public License v2 with the Classpath Exception](https://openjdk.org/legal/gplv2+ce.html) |
+| AndroidX and the Kotlin standard library, which libGDX's Android backend brings along | Android | Apache License 2.0 |
+| Android's desugared Java library | Android | GNU General Public License v2 with the Classpath Exception |
+| [gdx-teavm](https://github.com/xpenatan/gdx-teavm) and [TeaVM](https://teavm.org) | Web | Apache License 2.0 |
+| [howler.js](https://howlerjs.com) | Web | MIT License |
+
+FreeType asks for this line: portions of this software are copyright © 2024 The FreeType Project (www.freetype.org). All rights reserved.

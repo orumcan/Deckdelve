@@ -23,7 +23,7 @@ public class Lwjgl3Launcher {
         int height = Math.round(display.height * 0.85f);
         configuration.setWindowedMode(height * 9 / 16, height);
         configuration.setWindowSizeLimits(360, 640, -1, -1);
-        configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
+        configuration.setWindowIcon("icon128.png", "icon64.png", "icon32.png", "icon16.png");
         return configuration;
     }
 }

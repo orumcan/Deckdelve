@@ -1,8 +1,9 @@
-plugins {
-  // Lets Gradle download a matching JDK when one isn't installed.
-  id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
-}
-
 rootProject.name = 'deckdelve'
 
-include 'logic', 'console', 'core', 'lwjgl3', 'android', 'teavm'
+// One module to a line, so a build that needs only some of them, such as F-Droid's, can drop the rest.
+include 'logic'
+include 'console'
+include 'core'
+include 'lwjgl3'
+include 'android'
+include 'teavm'

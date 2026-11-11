@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_background_color">#F5A623FF</color>
-    <color name="background">#FFFFFFFF</color>
+    <!-- The table's green, so the window is already the right color while the game starts. -->
+    <color name="table">#1B4332</color>
 </resources>

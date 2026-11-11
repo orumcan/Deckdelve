@@ -1,0 +1,7 @@
+The first release.
+
+- The classic Scoundrel rules, with a tutorial and a How to Play page
+- Classic and Fantasy card themes
+- Eight challenge modifiers, twenty achievements and stats
+- Rule variants, animation speeds and sound
+- Runs are saved after every move

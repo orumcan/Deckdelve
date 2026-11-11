@@ -15,11 +15,15 @@ dependencies {
 // Release: gdx_teavm_web_{js,wasm}_release_build writes to build/dist/{js,wasm}/release/webapp,
 // and the matching _run tasks serve that build locally.
 gdxTeaVM {
-  assets.from(rootProject.files('assets'))
+  // teavm/assets holds what only the web page needs: its tab icon and the logo of its loading screen.
+  assets.from(rootProject.files('assets'), files('assets'))
 
   webDefaults {
     mainClass.set('io.github.orumcan.deckdelve.teavm.TeaVMLauncher')
     htmlTitle.set(appName)
+    logoPath.set('web/loading.png')
+    // The logo is one of the assets above, so there is nothing to copy from the classpath.
+    copyLoadingAsset.set(false)
   }
 
   js {
@@ -48,3 +52,15 @@ tasks.register('run') {
   dependsOn 'gdx_teavm_web_wasm_release_run'
 }
 build.dependsOn 'gdx_teavm_web_wasm_release_build'
+
+// The web build as one zip with index.html at its top: what itch.io takes, and what the release publishes.
+tasks.register('zipWeb', Zip) {
+  dependsOn 'gdx_teavm_web_wasm_release_build'
+  from layout.buildDirectory.dir('dist/wasm/release/webapp')
+  // The license and the credits travel with the web build too.
+  from rootProject.files('LICENSE', 'CREDITS.md')
+  // A leftover of the local server that a static host has no use for.
+  exclude 'WEB-INF/**'
+  archiveFileName = "${appName}-${projectVersion}-web.zip"
+  destinationDirectory = layout.buildDirectory.dir('dist')
+}

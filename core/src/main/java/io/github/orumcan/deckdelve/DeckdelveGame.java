@@ -10,8 +10,18 @@ import io.github.orumcan.deckdelve.logic.Seed;
 import java.util.Optional;
 
 public class DeckdelveGame extends Game {
+    private final boolean touchOnly;
     private Ui ui;
     private Profile profile;
+
+    public DeckdelveGame() {
+        this(false);
+    }
+
+    /** @param touchOnly whether the launcher knows the game is played by touch alone, so key hints would mislead */
+    public DeckdelveGame(boolean touchOnly) {
+        this.touchOnly = touchOnly;
+    }
 
     @Override
     public void create() {
@@ -51,6 +61,10 @@ public class DeckdelveGame extends Game {
 
     Profile profile() {
         return profile;
+    }
+
+    boolean showsKeyHints() {
+        return !touchOnly && Gdx.input.isPeripheralAvailable(Input.Peripheral.HardwareKeyboard);
     }
 
     void useTheme(String id) {

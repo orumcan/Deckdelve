@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: A security problem
+    url: https://github.com/orumcan/Deckdelve/security/policy
+    about: Please report it privately. The security policy says how.
+  - name: A new theme
+    url: https://github.com/orumcan/Deckdelve/blob/main/THEMES.md
+    about: Themes are data, with no code. THEMES.md has the format, and a pull request adds one.

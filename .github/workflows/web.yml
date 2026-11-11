@@ -1,0 +1,42 @@
+name: Web
+
+# Publishing a release puts its web build on GitHub Pages. Run by hand, it publishes the latest release's again.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # The release's own zip is what goes online, so the page is exactly the build that was released.
+      - name: Fetch the release's web build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          # Empty when run by hand, which makes gh take the latest release.
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          gh release download $TAG --pattern '*-web.zip'
+          unzip -q ./*-web.zip -d site
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v5

@@ -57,6 +57,8 @@ jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
   dependsOn configurations.runtimeClasspath
   from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+  // The license and the credits travel inside the JAR, and with it inside every desktop package.
+  from rootProject.files('LICENSE', 'CREDITS.md')
   exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
   dependencies {
     exclude('META-INF/INDEX.LIST', 'META-INF/maven/**')
@@ -90,35 +92,54 @@ startScripts.dependsOn(':lwjgl3:jar')
 startScripts.classpath = project.tasks.jar.outputs.files
 
 // Native executables with a bundled JDK: lwjgl3:packageLinuxX64, packageMacM1, packageMacX64 and packageWinX64.
-// Output goes to lwjgl3/build/dist/. Construo can't notarize macOS builds.
+// The zips go to lwjgl3/build/dist/. Construo can't notarize macOS builds, so the macOS apps are unsigned.
+def jdkRelease = 'https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.13%2B9'
+def packageZip = { String platform -> layout.buildDirectory.file("dist/${appName}-${projectVersion}-${platform}.zip") }
+def macApp = { Target.MacOs target ->
+  target.identifier.set('io.github.orumcan.deckdelve')
+  target.macIcon.set(project.file('icons/logo.icns'))
+  target.versionNumber.set(projectVersion)
+  target.buildNumber.set(projectVersion)
+  target.categoryName.set('public.app-category.card-games')
+}
+
 construo {
   name.set(appName)
   humanName.set(appName)
+  // Each zip unpacks into one folder instead of spilling its files.
+  zipFolder.set(appName)
   jlink {
     guessModulesFromJar.set(false)
     modules.addAll('java.base', 'java.management', 'java.desktop', 'jdk.unsupported')
   }
 
+  // Each JDK is checked against the SHA-256 that Adoptium publishes beside it.
   targets.configure {
     register('linuxX64', Target.Linux) {
       architecture.set(Target.Architecture.X86_64)
-      jdkUrl.set('https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.10%2B7/OpenJDK21U-jdk_x64_linux_hotspot_21.0.10_7.tar.gz')
+      jdkUrl.set("$jdkRelease/OpenJDK21U-jdk_x64_linux_hotspot_21.0.13_9.tar.gz")
+      jdkSha256.set('d7f5d5cf865a2902b70ff549b97586a7d3f234e016f041ab447ea740c7d66d1c')
+      archiveFile.set(packageZip('linux-x64'))
     }
     register('macM1', Target.MacOs) {
       architecture.set(Target.Architecture.AARCH64)
-      jdkUrl.set('https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.10%2B7/OpenJDK21U-jdk_aarch64_mac_hotspot_21.0.10_7.tar.gz')
-      identifier.set('io.github.orumcan.deckdelve')
-      macIcon.set(project.file('icons/logo.icns'))
+      jdkUrl.set("$jdkRelease/OpenJDK21U-jdk_aarch64_mac_hotspot_21.0.13_9.tar.gz")
+      jdkSha256.set('bf036b35b071bfb2f54f2c0af8ee8d88afa95ee6eb3dce02c0f94cfc2524d04a')
+      archiveFile.set(packageZip('macos-arm64'))
+      macApp(it)
     }
     register('macX64', Target.MacOs) {
       architecture.set(Target.Architecture.X86_64)
-      jdkUrl.set('https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.10%2B7/OpenJDK21U-jdk_x64_mac_hotspot_21.0.10_7.tar.gz')
-      identifier.set('io.github.orumcan.deckdelve')
-      macIcon.set(project.file('icons/logo.icns'))
+      jdkUrl.set("$jdkRelease/OpenJDK21U-jdk_x64_mac_hotspot_21.0.13_9.tar.gz")
+      jdkSha256.set('9aa1d1c17ae5467a022679e7e0af5c00797d94ac462ed1a46f4db07a8a34a6dd')
+      archiveFile.set(packageZip('macos-x64'))
+      macApp(it)
     }
     register('winX64', Target.Windows) {
       architecture.set(Target.Architecture.X86_64)
-      jdkUrl.set('https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.10%2B7/OpenJDK21U-jdk_x64_windows_hotspot_21.0.10_7.zip')
+      jdkUrl.set("$jdkRelease/OpenJDK21U-jdk_x64_windows_hotspot_21.0.13_9.zip")
+      jdkSha256.set('a4dbaa05fca4bd89d84584e58c459bd732efebb1722af80ab13c6516832004f9')
+      archiveFile.set(packageZip('windows-x64'))
       icon.set(project.file('icons/logo.png'))
     }
   }

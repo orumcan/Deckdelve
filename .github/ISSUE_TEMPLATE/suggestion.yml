@@ -1,0 +1,18 @@
+name: Suggestion
+description: A change or an addition you'd like to see
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Deckdelve stays a faithful, offline Scoundrel. [CONTRIBUTING.md](https://github.com/orumcan/Deckdelve/blob/main/CONTRIBUTING.md) lists what it won't take, such as network features, and the classic rules don't change: a different reading of them becomes a rule variant in Settings.
+  - type: textarea
+    id: what
+    attributes:
+      label: What would you like?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: What would it make better?

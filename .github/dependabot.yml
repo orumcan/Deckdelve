@@ -1,0 +1,20 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ['*']
+
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      libraries:
+        patterns: ['*']
+    ignore:
+      # F-Droid's build servers can't run the newest Android Gradle plugin, so it's raised by hand.
+      - dependency-name: com.android.tools.build:gradle

@@ -4,6 +4,28 @@ dependencies {
   api project(':logic')
 }
 
+// The version lives in gradle.properties. Credits shows it, so the build hands it to the game as a class.
+def writeVersion = tasks.register('writeVersion') {
+  def version = projectVersion
+  def sources = layout.buildDirectory.dir('generated/version')
+  inputs.property('version', version)
+  outputs.dir(sources)
+  doLast {
+    def source = sources.get().file('io/github/orumcan/deckdelve/GameVersion.java').asFile
+    source.parentFile.mkdirs()
+    source.text = """\
+        package io.github.orumcan.deckdelve;
+
+        final class GameVersion {
+            static final String NAME = "$version";
+
+            private GameVersion() {}
+        }
+        """.stripIndent()
+  }
+}
+sourceSets.main.java.srcDir(writeVersion)
+
 tasks.named('test') {
   // ThemeDataTest reads the theme folders, so editing a theme reruns it.
   inputs.dir(rootProject.file('assets/themes'))
