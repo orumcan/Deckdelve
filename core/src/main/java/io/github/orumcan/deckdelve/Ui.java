@@ -106,7 +106,7 @@ final class Ui implements Disposable {
 
     void resize(int width, int height) {
         float density = Gdx.graphics.getBackBufferWidth() / (float) Gdx.graphics.getWidth();
-        float pixelsPerUnit = Math.min(width / WIDTH, height / HEIGHT) * density;
+        float pixelsPerUnit = SafeArea.of(width, height).pixelsPerUnit() * density;
         if (fonts.render(pixelsPerUnit)) {
             styles = new Styles(fonts, art);
         }

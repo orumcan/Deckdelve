@@ -25,6 +25,8 @@ abstract class StageScreen extends ScreenAdapter {
 
     final Ui ui;
     final Stage stage;
+    private final ExtendViewport viewport = new ExtendViewport(Ui.WIDTH, Ui.HEIGHT);
+    private SafeArea safe = SafeArea.WHOLE_SCREEN;
     private Table root;
     private Table modal;
     private IntPredicate modalKeys;
@@ -33,7 +35,7 @@ abstract class StageScreen extends ScreenAdapter {
 
     StageScreen(Ui ui) {
         this.ui = ui;
-        stage = new Stage(new ExtendViewport(Ui.WIDTH, Ui.HEIGHT), ui.batch);
+        stage = new Stage(viewport, ui.batch);
         stage.addListener(new InputListener() {
             @Override
             public boolean keyDown(InputEvent event, int keycode) {
@@ -56,6 +58,7 @@ abstract class StageScreen extends ScreenAdapter {
         root = new Table();
         root.setFillParent(true);
         root.setBackground(ui.styles.vignette);
+        keepClearOfCutouts(root);
         stage.addActor(root);
         build(root);
         if (modal == null && reopen != null) {
@@ -106,6 +109,7 @@ abstract class StageScreen extends ScreenAdapter {
         Table overlay = new Table();
         overlay.setFillParent(true);
         overlay.setBackground(ui.styles.dim);
+        keepClearOfCutouts(overlay);
         overlay.setTouchable(Touchable.enabled);
         if (closeOnOutsideClick) {
             overlay.addListener(new ClickListener() {
@@ -122,6 +126,15 @@ abstract class StageScreen extends ScreenAdapter {
         modalKeys = keys;
         this.reopen = reopen;
         return overlay;
+    }
+
+    /** The layer's background still covers the whole screen. Only what the layer holds moves in. */
+    private void keepClearOfCutouts(Table layer) {
+        layer.pad(
+                layer.getPadTop() + safe.top(),
+                layer.getPadLeft() + safe.left(),
+                layer.getPadBottom() + safe.bottom(),
+                layer.getPadRight() + safe.right());
     }
 
     void close() {
@@ -158,7 +171,10 @@ abstract class StageScreen extends ScreenAdapter {
 
     @Override
     public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
+        safe = SafeArea.of(width, height);
+        viewport.setMinWorldWidth(safe.minWorldWidth());
+        viewport.setMinWorldHeight(safe.minWorldHeight());
+        viewport.update(width, height, true);
         rebuild();
     }
 
