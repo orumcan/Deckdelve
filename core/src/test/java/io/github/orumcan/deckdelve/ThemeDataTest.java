@@ -59,6 +59,21 @@ class ThemeDataTest {
     }
 
     @Test
+    void aThemeWithoutTitleCardsGetsTheDefaultThree() throws IOException {
+        JsonValue json = json(Themes.DEFAULT);
+        json.remove("title");
+        assertEquals(ThemeData.DEFAULT_TITLE, ThemeData.parse(json).title());
+    }
+
+    @Test
+    void titleCardsOutOfOrderAreRejected() throws IOException {
+        JsonValue json = json(Themes.DEFAULT);
+        json.remove("title");
+        json.addChild("title", new JsonReader().parse("[\"7H\", \"10D\", \"AC\"]"));
+        assertThrows(IllegalArgumentException.class, () -> ThemeData.parse(json));
+    }
+
+    @Test
     void textFallsBackToEnglish() {
         Localized name = Localized.of(new JsonReader().parse("{\"en\": \"Dragon\", \"de\": \"Drache\"}"));
         assertEquals("Drache", name.in("de"));

@@ -10,6 +10,7 @@ It is based on [Scoundrel](http://www.stfj.net/art/2011/Scoundrel.pdf) by Zach G
 |---|---|---|---|
 | Rubik font (`assets/fonts`) | The Rubik Project Authors | [SIL Open Font License 1.1](assets/fonts/OFL.txt) | [Google Fonts](https://fonts.google.com/specimen/Rubik) |
 | Fantasy theme icons (`assets/themes/fantasy/icons`) | Lorc, Delapouite, Skoll and Caro Asercion | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) | [game-icons.net](https://game-icons.net) |
+| Pirates theme icons (`assets/themes/pirates/icons`) | Lorc, Delapouite, Skoll, Cathelineau and DarkZaitzev | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) | [game-icons.net](https://game-icons.net) |
 | Sounds (`assets/sounds`) | Kenney | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | [kenney.nl](https://kenney.nl/assets) |
 
 The cards, suits and panels are drawn by the game's own code, and so is the app icon.
@@ -81,6 +82,57 @@ Shrunk from 512 to 256 pixels and renamed after the cards that use them, with th
 | `wraith.png` | Wraith | [spectre](https://game-icons.net/1x1/lorc/spectre.html) | Lorc |
 | `wyvern.png` | Wyvern | [wyvern](https://game-icons.net/1x1/lorc/wyvern.html) | Lorc |
 | `zombie.png` | Zombie | [raise-zombie](https://game-icons.net/1x1/skoll/raise-zombie.html) | Skoll |
+
+### Pirates icons
+
+Shrunk from 512 to 256 pixels and renamed after the cards that use them, with the parts the game draws in the suit's color filled in black, as for Fantasy. Some fills go further: the Coconut's whole nut, the Dread Captain's four locks of hair, eye patch and moustache, and the Cursed Pirate's eye patch, its strap and the gap of its missing tooth. The game draws every icon with an outline in its suit's color.
+
+| File | Card | Icon | Author |
+|---|---|---|---|
+| `ale.png` | Ale | [beer-stein](https://game-icons.net/1x1/lorc/beer-stein.html) | Lorc |
+| `anglerfish.png` | Anglerfish | [angler-fish](https://game-icons.net/1x1/lorc/angler-fish.html) | Lorc |
+| `bilge-rat.png` | Bilge Rat | [mouse](https://game-icons.net/1x1/lorc/mouse.html) | Lorc |
+| `blunderbuss.png` | Blunderbuss | [blunderbuss](https://game-icons.net/1x1/lorc/blunderbuss.html) | Lorc |
+| `boarding-axe.png` | Boarding Axe | [hatchet](https://game-icons.net/1x1/delapouite/hatchet.html) | Delapouite |
+| `cannon.png` | Cannon | [cannon](https://game-icons.net/1x1/lorc/cannon.html) | Lorc |
+| `captains-wine.png` | Captain's Wine | [wine-bottle](https://game-icons.net/1x1/delapouite/wine-bottle.html) | Delapouite |
+| `coconut.png` | Coconut | [coconuts](https://game-icons.net/1x1/delapouite/coconuts.html) | Delapouite |
+| `crab.png` | Crab | [sad-crab](https://game-icons.net/1x1/lorc/sad-crab.html) | Lorc |
+| `cursed-chest.png` | Cursed Chest | [mimic-chest](https://game-icons.net/1x1/delapouite/mimic-chest.html) | Delapouite |
+| `cursed-pirate.png` | Cursed Pirate | [pirate-skull](https://game-icons.net/1x1/lorc/pirate-skull.html) | Lorc |
+| `cutlass.png` | Cutlass | [crossed-sabres](https://game-icons.net/1x1/lorc/crossed-sabres.html) | Lorc |
+| `cutthroat.png` | Cutthroat | [rogue](https://game-icons.net/1x1/lorc/rogue.html) | Lorc |
+| `dirk.png` | Dirk | [bowie-knife](https://game-icons.net/1x1/skoll/bowie-knife.html) | Skoll |
+| `dread-captain.png` | Dread Captain | [pirate-captain](https://game-icons.net/1x1/delapouite/pirate-captain.html) | Delapouite |
+| `drowned-sailor.png` | Drowned Sailor | [shambling-zombie](https://game-icons.net/1x1/delapouite/shambling-zombie.html) | Delapouite |
+| `eel.png` | Eel | [eel](https://game-icons.net/1x1/delapouite/eel.html) | Delapouite |
+| `flintlock.png` | Flintlock | [crossed-pistols](https://game-icons.net/1x1/lorc/crossed-pistols.html) | Lorc |
+| `fountain-of-youth.png` | Fountain of Youth | [water-fountain](https://game-icons.net/1x1/delapouite/water-fountain.html) | Delapouite |
+| `ghost-ship.png` | Ghost Ship | [galleon](https://game-icons.net/1x1/lorc/galleon.html) | Lorc |
+| `giant-octopus.png` | Giant Octopus | [octopus](https://game-icons.net/1x1/lorc/octopus.html) | Lorc |
+| `giant-squid.png` | Giant Squid | [giant-squid](https://game-icons.net/1x1/delapouite/giant-squid.html) | Delapouite |
+| `hardtack.png` | Hardtack | [sliced-bread](https://game-icons.net/1x1/lorc/sliced-bread.html) | Lorc |
+| `harpoon.png` | Harpoon | [harpoon-chain](https://game-icons.net/1x1/lorc/harpoon-chain.html) | Lorc |
+| `hook.png` | Hook | [pirate-hook](https://game-icons.net/1x1/delapouite/pirate-hook.html) | Delapouite |
+| `jellyfish.png` | Jellyfish | [jellyfish](https://game-icons.net/1x1/lorc/jellyfish.html) | Lorc |
+| `kraken.png` | Kraken | [kraken-tentacle](https://game-icons.net/1x1/delapouite/kraken-tentacle.html) | Delapouite |
+| `monkey.png` | Monkey | [monkey](https://game-icons.net/1x1/lorc/monkey.html) | Lorc |
+| `musket.png` | Musket | [musket](https://game-icons.net/1x1/skoll/musket.html) | Skoll |
+| `parrot.png` | Parrot | [parrot-head](https://game-icons.net/1x1/lorc/parrot-head.html) | Lorc |
+| `phantom.png` | Phantom | [ghost](https://game-icons.net/1x1/lorc/ghost.html) | Lorc |
+| `pirate-queen.png` | Pirate Queen | [swordwoman](https://game-icons.net/1x1/cathelineau/swordwoman.html) | Cathelineau |
+| `pufferfish.png` | Pufferfish | [porcupinefish](https://game-icons.net/1x1/delapouite/porcupinefish.html) | Delapouite |
+| `roast-fish.png` | Roast Fish | [fish-cooked](https://game-icons.net/1x1/darkzaitzev/fish-cooked.html) | DarkZaitzev |
+| `rum.png` | Rum | [brandy-bottle](https://game-icons.net/1x1/lorc/brandy-bottle.html) | Lorc |
+| `salt-pork.png` | Salt Pork | [ham-shank](https://game-icons.net/1x1/skoll/ham-shank.html) | Skoll |
+| `sea-serpent.png` | Sea Serpent | [sea-serpent](https://game-icons.net/1x1/lorc/sea-serpent.html) | Lorc |
+| `sea-witch.png` | Sea Witch | [witch-face](https://game-icons.net/1x1/cathelineau/witch-face.html) | Cathelineau |
+| `shark.png` | Shark | [shark-jaws](https://game-icons.net/1x1/lorc/shark-jaws.html) | Lorc |
+| `siren.png` | Siren | [mermaid](https://game-icons.net/1x1/delapouite/mermaid.html) | Delapouite |
+| `skeleton.png` | Skeleton | [skeleton](https://game-icons.net/1x1/skoll/skeleton.html) | Skoll |
+| `stingray.png` | Stingray | [manta-ray](https://game-icons.net/1x1/delapouite/manta-ray.html) | Delapouite |
+| `whale.png` | Whale | [sperm-whale](https://game-icons.net/1x1/delapouite/sperm-whale.html) | Delapouite |
+| `whiskey.png` | Whiskey | [booze](https://game-icons.net/1x1/delapouite/booze.html) | Delapouite |
 
 ## Libraries
 

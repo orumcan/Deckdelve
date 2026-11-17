@@ -22,7 +22,7 @@ Deckdelve is a free, open-source and fully offline version of Scoundrel. The cla
 
 - **The classic rules**, kept as the original has them. Where the original leaves a point open, the other reading is a rule variant in Settings.
 - **A tutorial** that walks through one full run, and a rulebook with its examples laid out in cards.
-- **Themes.** Fantasy turns the deck into weapons, potions and two families of monsters; Classic Cards shows plain playing cards. Rank and suit always stay in the corners.
+- **Themes.** Fantasy and Pirates each turn the deck into weapons, potions and two families of monsters; Classic Cards shows plain playing cards. Rank and suit always stay in the corners.
 - **Eight challenge modifiers**, each with a score multiplier measured by a bot over 50,000 runs.
 - **Twenty achievements** and a few stats, all kept on your device.
 - **Autosave** after every action, so a run survives closing the game.
