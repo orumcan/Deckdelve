@@ -7,7 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 import io.github.orumcan.deckdelve.logic.Card;
-import io.github.orumcan.deckdelve.logic.Suit;
+import java.util.List;
 
 final class TitleScreen extends StageScreen {
     private static final float FAN_WIDTH = CardActor.WIDTH * 2.6f;
@@ -43,17 +43,17 @@ final class TitleScreen extends StageScreen {
         root.add(more).padTop(24);
     }
 
-    /** A weapon, a potion and a monster, fanned out like a hand. */
+    /** The theme's weapon, potion and monster, fanned out like a hand. */
     private Group fan() {
-        Card[] cards = {new Card(Suit.DIAMONDS, 10), new Card(Suit.HEARTS, 7), new Card(Suit.SPADES, Card.ACE)};
+        List<Card> cards = ui.theme(ui.themeId()).titleCards();
         float[] angles = {14, -14, 0};
         Group fan = new Group();
-        for (int i = 0; i < cards.length; i++) {
+        for (int i = 0; i < cards.size(); i++) {
             Group holder = new Group();
             holder.setBounds((FAN_WIDTH - CardActor.WIDTH) / 2, 0, CardActor.WIDTH, CardActor.HEIGHT);
             holder.setOrigin(CardActor.WIDTH / 2, -CardActor.HEIGHT * 0.6f);
             holder.setRotation(angles[i]);
-            holder.addActor(CardActor.face(ui.cards, cards[i]));
+            holder.addActor(CardActor.face(ui.cards, cards.get(i)));
             fan.addActor(holder);
         }
         return fan;

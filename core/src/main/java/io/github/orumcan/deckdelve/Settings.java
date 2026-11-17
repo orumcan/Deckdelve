@@ -9,13 +9,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import io.github.orumcan.deckdelve.logic.Card;
 import io.github.orumcan.deckdelve.logic.Modifier;
 import io.github.orumcan.deckdelve.logic.RulesConfig;
 import io.github.orumcan.deckdelve.logic.RulesConfig.FinalRoom;
 import io.github.orumcan.deckdelve.logic.RulesConfig.WeaponRule;
 import io.github.orumcan.deckdelve.logic.Scoring;
-import io.github.orumcan.deckdelve.logic.Suit;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -25,9 +23,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 final class Settings {
-    /** Every tile shows the same card, so the themes compare like for like. */
-    private static final Card PREVIEW = new Card(Suit.CLUBS, Card.ACE);
-
     private static final float TILE_WIDTH = 300;
     private static final float SLIDER_HEIGHT = 72;
     private static final float TILE_PAD = 24;
@@ -237,7 +232,8 @@ final class Settings {
         // TextButton keeps its label in its only cell; the card goes above it.
         tile.clearChildren();
         tile.pad(TILE_PAD, TILE_PAD, TILE_PAD + Surfaces.DEPTH, TILE_PAD);
-        tile.add(CardActor.face(ui.cards, PREVIEW, ui.theme(id)))
+        Theme theme = ui.theme(id);
+        tile.add(CardActor.face(ui.cards, theme.frontCard(), theme))
                 .size(CardActor.WIDTH, CardActor.HEIGHT)
                 .row();
         tile.add(tile.getLabel()).width(TILE_WIDTH - 2 * TILE_PAD).padTop(16);

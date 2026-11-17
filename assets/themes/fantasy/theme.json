@@ -47,6 +47,7 @@
     "KS": {"name": {"en": "Lich"}, "icon": "lich.png"},
     "AS": {"name": {"en": "Demon Lord"}, "icon": "demon-lord.png"}
   },
+  "title": ["10D", "7H", "AC"],
   "credits": [
     {"en": "Icons by Lorc, Delapouite, Skoll and Caro Asercion from game-icons.net, under CC BY 3.0."},
     {"en": "The Longsword icon is adapted from Lorc's shining-sword."}

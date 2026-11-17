@@ -12,6 +12,7 @@ import io.github.orumcan.deckdelve.logic.Card;
 import io.github.orumcan.deckdelve.logic.Suit;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /** How cards look: Classic Cards with pips, or a data theme with an icon and a name on every card. */
@@ -191,6 +192,16 @@ final class Theme implements Disposable {
 
     boolean classic() {
         return data == null;
+    }
+
+    /** A weapon, a potion and a monster for the title screen to fan out, the monster in front. */
+    List<Card> titleCards() {
+        return classic() ? ThemeData.DEFAULT_TITLE : data.title();
+    }
+
+    /** The monster in front of the title fan, which also stands for the theme in Settings. */
+    Card frontCard() {
+        return titleCards().get(2);
     }
 
     String name(Card card, String language) {

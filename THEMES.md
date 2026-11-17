@@ -32,6 +32,7 @@ Here is the Fantasy theme, shortened to two of its 44 cards:
     "2D": {"name": {"en": "Dagger"}, "icon": "dagger.png"},
     "AS": {"name": {"en": "Demon Lord"}, "icon": "demon-lord.png"}
   },
+  "title": ["10D", "7H", "AC"],
   "credits": [
     {"en": "Icons by Lorc, Delapouite, Skoll and Caro Asercion from game-icons.net, under CC BY 3.0."},
     {"en": "The Longsword icon is adapted from Lorc's shining-sword."}
@@ -42,6 +43,7 @@ Here is the Fantasy theme, shortened to two of its 44 cards:
 - **name:** the theme's name in Settings.
 - **tints:** a color for each suit, as `#rrggbb`. It colors the card's frame and the icon's black parts and outline, so it needs to stand out on the card's off-white face.
 - **cards:** every one of the 44 cards, each with a name and the file name of its icon.
+- **title:** optional. The three cards the title screen fans out: a weapon, a potion and a monster, in that order. The monster sits in front and also shows on the theme's tile in Settings. Without it the title shows the 10 of diamonds, the 7 of hearts and the ace of spades.
 - **credits:** the lines the Credits screen shows for the theme.
 
 Clubs and spades are monsters, diamonds are weapons and hearts are potions. The two monster suits can be two families with their own looks, such as The Wilds and The Crypt in Fantasy.
@@ -76,4 +78,4 @@ Themes use original characters only. No names or likenesses from existing games,
 
 ## Trying a theme
 
-`./gradlew core:test` checks every theme in `themes.json`: all 44 cards are present, each text has English, each icon is a square PNG, and every file in `icons/` belongs to a card. Then run the game with `./gradlew lwjgl3:run` and pick the theme in Settings.
+`./gradlew core:test` checks every theme in `themes.json`: all 44 cards are present, the title cards are a weapon, a potion and a monster, each text has English, each icon is a square PNG, and every file in `icons/` belongs to a card. Then run the game with `./gradlew lwjgl3:run` and pick the theme in Settings.
