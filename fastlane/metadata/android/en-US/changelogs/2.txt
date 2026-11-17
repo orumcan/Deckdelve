@@ -1,0 +1,5 @@
+A pirate theme.
+
+- Pirates: 44 new cards, from the Hook and the Hardtack to the Kraken and the Ghost Ship, with The Deep and The Cursed Crew as its monsters
+- Each theme picks the cards on its title screen, and Fantasy now shows its Dragon
+- The Floor health at 0 variant is now called Ignore overkill, which says what it does: it only changes the score of a death
